@@ -335,12 +335,15 @@
     async function fetchRoute(from, to, elId) {
       try {
         const res = await fetch(`https://huxley2.azurewebsites.net/departures/${from}/to/${to}?accessToken=${TOKEN}&expand=true`);
-        if (!res.ok) {
+        const bodyText = await res.text();
+        let data = null;
+        try {
+          data = bodyText ? JSON.parse(bodyText) : null;
+        } catch (e) {
           document.getElementById(elId).innerHTML = renderError('error: are you sure that CRS is valid?');
           return [];
         }
-        const data = await res.json();
-        if (!data?.trainServices) {
+        if (!res.ok || !data?.trainServices) {
           document.getElementById(elId).innerHTML = renderError('error: are you sure that CRS is valid?');
           return data?.nrccMessages || [];
         }

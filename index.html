@@ -299,7 +299,7 @@
         const isFast = showFast && stops !== null && fastStopMax !== null && stops <= fastStopMax;
         const isDirect = stops === 1;
         const stopsLabel = stops === null ? '--' : `${stops} stops`;
-        const fastLabel = stops === null ? '<span class="fast">FAST</span>' : `<span class="fast">FAST</span> ${stopsLabel}`;
+        const fastLabel = `${stopsLabel} <span class="fast">FAST</span>`;
         return `<div class="train ${cls}">
           <span class="time">${t.std}</span>
           <span class="plat">${plat}</span>

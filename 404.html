@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Commute</title>
+  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiIgdmlld0JveD0iMCAwIDMyIDMyIj48cGF0aCBkPSJNNiAxOGMwIDYgNyA5IDE0IDYgNS0yIDctNyA1LTExLTItNC03LTUtMTEtNC00IDEtOCA1LTggOXoiIGZpbGw9IiNmZjU1NTUiLz48cGF0aCBkPSJNMTkgN2MxLTIgMy0zIDUtMiAxIDAgMiAxIDIgMi0yLTEtNCAwLTUgMnoiIGZpbGw9IiM1MGZhN2IiLz48cGF0aCBkPSJNMTAgMTdjMi00IDctNyAxMS03IDMgMCA1IDEgNiAzLTItMy02LTMtOS0yLTQgMi02IDUtOCA5IDAgMSAwIDIgMSAzLTItMS0zLTMtMS02eiIgZmlsbD0iI2ZmNmI2YiIvPjwvc3ZnPg==">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      background: #282a36;
+      color: #f8f8f2;
+      margin: 0;
+      padding: 16px;
+      min-height: 100vh;
+    }
+    .container { max-width: 500px; margin: 0 auto; }
+    h1 { 
+      color: #8be9fd;
+      font-size: 14px;
+      margin: 0 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #44475a;
+    }
+    h1 span { color: #6272a4; }
+    .hint {
+      color: #6272a4;
+      font-size: 11px;
+      text-align: center;
+      margin: 0 0 12px 0;
+    }
+    .section {
+      margin-bottom: 24px;
+      background: #21222c;
+      border-radius: 8px;
+      padding: 12px;
+      border: 1px solid #44475a;
+    }
+    .route {
+      color: #bd93f9;
+      font-size: 13px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .route .arrow { color: #6272a4; }
+    .refresh {
+      background: none;
+      border: 1px solid #44475a;
+      color: #8be9fd;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .refresh:active { background: #44475a; }
+    .train {
+      display: flex;
+      padding: 8px 0;
+      border-bottom: 1px solid #44475a;
+      font-size: 14px;
+      align-items: center;
+    }
+    .train:last-child { border-bottom: none; }
+    .time { color: #50fa7b; width: 50px; }
+    .plat { color: #6272a4; width: 35px; }
+    .fast { 
+      color: #ffb86c;
+      font-size: 10px;
+      background: #ffb86c20;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+    .stops { color: #6272a4; font-size: 11px; flex: 1; }
+    .status { color: #f8f8f2; text-align: right; min-width: 60px; }
+    .delayed .time { color: #ff5555; text-decoration: line-through; }
+    .delayed .status { color: #ff5555; }
+    .cancelled .time { color: #6272a4; text-decoration: line-through; }
+    .cancelled .status { color: #ff5555; }
+    .updated {
+      color: #6272a4;
+      font-size: 11px;
+      text-align: center;
+      margin-top: 16px;
+    }
+    .alerts {
+      background: #ff555520;
+      border: 1px solid #ff555540;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: #ff5555;
+    }
+    .alerts a { color: #8be9fd; }
+    .alerts summary {
+      cursor: pointer;
+      list-style: none;
+      outline: none;
+    }
+    .alerts summary::-webkit-details-marker { display: none; }
+    .alerts-body { margin-top: 8px; line-height: 1.4; }
+    .loading { color: #6272a4; font-style: italic; }
+    .cursor { animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span>~/</span>commute<span class="cursor">_</span></h1>
+    <div class="hint">Try /WAT/WAL or /WAL/WAT in the URL</div>
+    <div class="section">
+      <div class="route">
+        <span id="outbound-label">WAL <span class="arrow">→</span> WAT</span>
+        <button class="refresh" onclick="fetchTrains()">↻</button>
+      </div>
+      <div id="outbound"><span class="loading">loading...</span></div>
+    </div>
+    <div class="section">
+      <div class="route">
+        <span id="inbound-label">WAT <span class="arrow">→</span> WAL</span>
+        <button class="refresh" onclick="fetchTrains()">↻</button>
+      </div>
+      <div id="inbound"><span class="loading">loading...</span></div>
+    </div>
+    <div id="alerts"></div>
+    <div class="updated" id="updated"></div>
+  </div>
+  <script>
+    const TOKEN = '89a974d2-2b24-44fb-b22a-f9dd3585190f';
+    const DEFAULT_FROM = 'WAL';
+    const DEFAULT_TO = 'WAT';
+
+    function isValidCode(code) {
+      return /^[A-Z]{3}$/.test(code);
+    }
+
+    function getRouteFromPath() {
+      const parts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+      if (parts.length >= 2) {
+        const from = parts[0].toUpperCase();
+        const to = parts[1].toUpperCase();
+        if (isValidCode(from) && isValidCode(to)) {
+          return { from, to };
+        }
+      }
+      return { from: DEFAULT_FROM, to: DEFAULT_TO };
+    }
+
+    const route = getRouteFromPath();
+    document.getElementById('outbound-label').textContent = `${route.from} → ${route.to}`;
+    document.getElementById('inbound-label').textContent = `${route.to} → ${route.from}`;
+    document.title = `Commute ${route.from}-${route.to}`;
+
+    function renderTrains(trains, dest) {
+      if (!trains?.length) return '<span class="loading">no trains</span>';
+      return trains.slice(0, 5).map(t => {
+        const delayed = t.etd !== 'On time' && t.etd !== t.std && t.etd !== 'Cancelled';
+        const cancelled = t.etd === 'Cancelled';
+        const cls = cancelled ? 'cancelled' : (delayed ? 'delayed' : '');
+        const plat = t.platform ? `P${t.platform}` : '--';
+        const allStops = t.subsequentCallingPoints?.[0]?.callingPoint || [];
+        const destIdx = allStops.findIndex(s => s.crs === dest);
+        const stops = destIdx >= 0 ? destIdx + 1 : allStops.length;
+        const isFast = stops <= 3;
+        return `<div class="train ${cls}">
+          <span class="time">${t.std}</span>
+          <span class="plat">${plat}</span>
+          <span class="stops">${isFast ? '<span class="fast">FAST</span>' : stops + ' stops'}</span>
+          <span class="status">${t.etd}</span>
+        </div>`;
+      }).join('');
+    }
+
+    async function fetchRoute(from, to, elId) {
+      try {
+        const res = await fetch(`https://huxley2.azurewebsites.net/departures/${from}/to/${to}?accessToken=${TOKEN}&expand=true`);
+        const data = await res.json();
+        document.getElementById(elId).innerHTML = renderTrains(data.trainServices, to);
+        return data.nrccMessages || [];
+      } catch (e) {
+        document.getElementById(elId).innerHTML = '<span class="loading">error</span>';
+        return [];
+      }
+    }
+
+    async function fetchTrains() {
+      const [msgs1, msgs2] = await Promise.all([
+        fetchRoute(route.from, route.to, 'outbound'),
+        fetchRoute(route.to, route.from, 'inbound')
+      ]);
+      const allMsgs = [...msgs1, ...msgs2].map(m => m.value);
+      const unique = [...new Set(allMsgs)];
+      document.getElementById('alerts').innerHTML = unique.length
+        ? `<details class="alerts">
+            <summary>Service alerts (${unique.length})</summary>
+            <div class="alerts-body">${unique.join('<br><br>')}</div>
+          </details>`
+        : '';
+      document.getElementById('updated').textContent = new Date().toLocaleTimeString();
+    }
+
+    fetchTrains();
+    setInterval(fetchTrains, 60000);
+  </script>
+</body>
+</html>

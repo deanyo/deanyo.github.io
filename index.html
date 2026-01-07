@@ -55,11 +55,21 @@
       padding: 8px 0;
       border-bottom: 1px solid #292e42;
       font-size: 14px;
+      align-items: center;
     }
     .train:last-child { border-bottom: none; }
     .time { color: #9ece6a; width: 50px; }
-    .plat { color: #565f89; width: 45px; }
-    .status { color: #a9b1d6; flex: 1; text-align: right; }
+    .plat { color: #565f89; width: 35px; }
+    .fast { 
+      color: #e0af68;
+      font-size: 10px;
+      background: #e0af6820;
+      padding: 2px 5px;
+      border-radius: 3px;
+      margin-right: 8px;
+    }
+    .stops { color: #565f89; font-size: 11px; flex: 1; }
+    .status { color: #a9b1d6; text-align: right; min-width: 60px; }
     .delayed .time { color: #f7768e; text-decoration: line-through; }
     .delayed .status { color: #f7768e; }
     .cancelled .time { color: #565f89; text-decoration: line-through; }
@@ -104,9 +114,12 @@
         const cancelled = t.etd === 'Cancelled';
         const cls = cancelled ? 'cancelled' : (delayed ? 'delayed' : '');
         const plat = t.platform ? `P${t.platform}` : '--';
+        const stops = t.subsequentCallingPoints?.[0]?.callingPoint?.length || 0;
+        const isFast = stops <= 3;
         return `<div class="train ${cls}">
           <span class="time">${t.std}</span>
           <span class="plat">${plat}</span>
+          ${isFast ? '<span class="fast">FAST</span>' : `<span class="stops">${stops} stops</span>`}
           <span class="status">${t.etd}</span>
         </div>`;
       }).join('');
@@ -114,7 +127,7 @@
 
     async function fetchRoute(from, to, elId) {
       try {
-        const res = await fetch(`https://huxley2.azurewebsites.net/departures/${from}/to/${to}?accessToken=${TOKEN}`);
+        const res = await fetch(`https://huxley2.azurewebsites.net/departures/${from}/to/${to}?accessToken=${TOKEN}&expand=true`);
         const data = await res.json();
         document.getElementById(elId).innerHTML = renderTrains(data.trainServices);
       } catch (e) {

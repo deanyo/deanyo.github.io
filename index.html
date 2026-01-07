@@ -24,12 +24,6 @@
       border-bottom: 1px solid #44475a;
     }
     h1 span { color: #6272a4; }
-    .hint {
-      color: #6272a4;
-      font-size: 11px;
-      text-align: center;
-      margin: 0 0 12px 0;
-    }
     .section {
       margin-bottom: 24px;
       background: #21222c;
@@ -127,7 +121,6 @@
     </div>
     <div id="alerts"></div>
     <div class="updated" id="updated"></div>
-    <div class="hint">Try /WAT/WAL or /SUR/WOK in the URL</div>
   </div>
   <script>
     const TOKEN = '89a974d2-2b24-44fb-b22a-f9dd3585190f';
@@ -140,14 +133,17 @@
 
     function getRouteFromPath() {
       const parts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
+      let from = DEFAULT_FROM;
+      let to = DEFAULT_TO;
       if (parts.length >= 2) {
-        const from = parts[0].toUpperCase();
-        const to = parts[1].toUpperCase();
-        if (isValidCode(from) && isValidCode(to)) {
-          return { from, to, path: `commute/${from.toLowerCase()}/${to.toLowerCase()}` };
+        const candidateFrom = parts[0].toUpperCase();
+        const candidateTo = parts[1].toUpperCase();
+        if (isValidCode(candidateFrom) && isValidCode(candidateTo)) {
+          from = candidateFrom;
+          to = candidateTo;
         }
       }
-      return { from: DEFAULT_FROM, to: DEFAULT_TO, path: 'commute' };
+      return { from, to, path: `commute/${from.toLowerCase()}/${to.toLowerCase()}` };
     }
 
     const route = getRouteFromPath();
@@ -166,15 +162,16 @@
         return destIdx >= 0 ? destIdx + 1 : allStops.length;
       });
       const definedStops = stopCounts.filter(s => s !== null);
-      const minStops = definedStops.length ? Math.min(...definedStops) : null;
-      const maxStops = definedStops.length ? Math.max(...definedStops) : null;
+      const uniqueStops = [...new Set(definedStops)].sort((a, b) => a - b);
+      const fastStopMax = uniqueStops.length >= 3 ? uniqueStops[1] : (uniqueStops[0] ?? null);
+      const showFast = uniqueStops.length >= 2;
       return list.map((t, i) => {
         const delayed = t.etd !== 'On time' && t.etd !== t.std && t.etd !== 'Cancelled';
         const cancelled = t.etd === 'Cancelled';
         const cls = cancelled ? 'cancelled' : (delayed ? 'delayed' : '');
         const plat = t.platform ? `P${t.platform}` : '--';
         const stops = stopCounts[i];
-        const isFast = stops !== null && minStops !== null && maxStops !== null && minStops < maxStops && stops === minStops;
+        const isFast = showFast && stops !== null && fastStopMax !== null && stops <= fastStopMax;
         const isDirect = stops === 1;
         const stopsLabel = stops === null ? '--' : `${stops} stops`;
         return `<div class="train ${cls}">

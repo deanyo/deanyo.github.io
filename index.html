@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>Commute</title>
+  <style>
+    body { font-family: system-ui; max-width: 600px; margin: 20px auto; padding: 0 10px; }
+    .train { padding: 10px; margin: 5px 0; background: #f5f5f5; border-radius: 4px; display: flex; justify-content: space-between; }
+    .delayed { background: #ffe0e0; }
+    .time { font-weight: bold; }
+    .exp { color: #c00; }
+    #updated { color: #999; font-size: 0.8em; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>Walton → Waterloo</h2>
+  <div id="trains">Loading...</div>
+  <div id="updated"></div>
+  <script>
+    const TOKEN = '89a974d2-2b24-44fb-b22a-f9dd3585190f';
+    const FROM = 'WAL', TO = 'WAT';
+
+    async function fetchTrains() {
+      try {
+        const res = await fetch(`https://huxley2.azurewebsites.net/departures/${FROM}/to/${TO}?accessToken=${TOKEN}`);
+        const data = await res.json();
+        const trains = data.trainServices || [];
+        
+        document.getElementById('trains').innerHTML = trains.length 
+          ? trains.slice(0, 6).map(t => {
+              const delayed = t.etd !== 'On time';
+              return `<div class="train ${delayed ? 'delayed' : ''}">
+                <span class="time">${t.std}</span>
+                <span class="${delayed ? 'exp' : ''}">${t.etd}</span>
+              </div>`;
+            }).join('')
+          : 'No trains found';
+        document.getElementById('updated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+      } catch (e) {
+        document.getElementById('trains').innerHTML = 'Error loading trains';
+      }
+    }
+
+    fetchTrains();
+    setInterval(fetchTrains, 60000);
+  </script>
+</body>
+</html>

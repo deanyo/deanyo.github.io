@@ -241,6 +241,12 @@
       }
     });
 
+    document.addEventListener('click', (event) => {
+      if (!container.classList.contains('editing')) return;
+      if (header.contains(event.target) || editor.contains(event.target)) return;
+      container.classList.remove('editing');
+    });
+
     function applyRoute() {
       normalizeInput(fromInput);
       normalizeInput(toInput);

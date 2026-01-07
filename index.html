@@ -80,6 +80,16 @@
       text-align: center;
       margin-top: 16px;
     }
+    .alerts {
+      background: #f7768e20;
+      border: 1px solid #f7768e40;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      font-size: 12px;
+      color: #f7768e;
+    }
+    .alerts a { color: #7aa2f7; }
     .loading { color: #565f89; font-style: italic; }
     .cursor { animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0; } }
@@ -102,19 +112,22 @@
       </div>
       <div id="inbound"><span class="loading">loading...</span></div>
     </div>
+    <div id="alerts"></div>
     <div class="updated" id="updated"></div>
   </div>
   <script>
     const TOKEN = '89a974d2-2b24-44fb-b22a-f9dd3585190f';
 
-    function renderTrains(trains) {
+    function renderTrains(trains, dest) {
       if (!trains?.length) return '<span class="loading">no trains</span>';
       return trains.slice(0, 5).map(t => {
         const delayed = t.etd !== 'On time' && t.etd !== t.std && t.etd !== 'Cancelled';
         const cancelled = t.etd === 'Cancelled';
         const cls = cancelled ? 'cancelled' : (delayed ? 'delayed' : '');
         const plat = t.platform ? `P${t.platform}` : '--';
-        const stops = t.subsequentCallingPoints?.[0]?.callingPoint?.length || 0;
+        const allStops = t.subsequentCallingPoints?.[0]?.callingPoint || [];
+        const destIdx = allStops.findIndex(s => s.crs === dest);
+        const stops = destIdx >= 0 ? destIdx + 1 : allStops.length;
         const isFast = stops <= 3;
         return `<div class="train ${cls}">
           <span class="time">${t.std}</span>
@@ -129,15 +142,24 @@
       try {
         const res = await fetch(`https://huxley2.azurewebsites.net/departures/${from}/to/${to}?accessToken=${TOKEN}&expand=true`);
         const data = await res.json();
-        document.getElementById(elId).innerHTML = renderTrains(data.trainServices);
+        document.getElementById(elId).innerHTML = renderTrains(data.trainServices, to);
+        return data.nrccMessages || [];
       } catch (e) {
         document.getElementById(elId).innerHTML = '<span class="loading">error</span>';
+        return [];
       }
     }
 
-    function fetchTrains() {
-      fetchRoute('WAL', 'WAT', 'outbound');
-      fetchRoute('WAT', 'WAL', 'inbound');
+    async function fetchTrains() {
+      const [msgs1, msgs2] = await Promise.all([
+        fetchRoute('WAL', 'WAT', 'outbound'),
+        fetchRoute('WAT', 'WAL', 'inbound')
+      ]);
+      const allMsgs = [...msgs1, ...msgs2].map(m => m.value);
+      const unique = [...new Set(allMsgs)];
+      document.getElementById('alerts').innerHTML = unique.length 
+        ? `<div class="alerts">${unique.join('<br><br>')}</div>` 
+        : '';
       document.getElementById('updated').textContent = new Date().toLocaleTimeString();
     }
 

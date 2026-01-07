@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Commute</title>
+  <title>My Commute</title>
   <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij48dGV4dCB4PSI1MCUiIHk9IjUwJSIgZG9taW5hbnQtYmFzZWxpbmU9ImNlbnRyYWwiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtc2l6ZT0iNTIiPvCfjLbvuI88L3RleHQ+PC9zdmc+">
   <style>
     * { box-sizing: border-box; }
@@ -204,7 +204,7 @@
       document.getElementById('path-label').textContent = route.path;
       document.getElementById('outbound-label').textContent = `${getStationLabel(route.from)} → ${getStationLabel(route.to)}`;
       document.getElementById('inbound-label').textContent = `${getStationLabel(route.to)} → ${getStationLabel(route.from)}`;
-      document.title = `Commute ${route.from}-${route.to}`;
+      document.title = `My Commute: ${route.from}-${route.to}`;
       if (!container.classList.contains('editing')) {
         fromInput.value = route.from;
         toInput.value = route.to;

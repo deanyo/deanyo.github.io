@@ -234,8 +234,7 @@
       }
     });
 
-    editor.addEventListener('submit', (event) => {
-      event.preventDefault();
+    function applyRoute() {
       normalizeInput(fromInput);
       normalizeInput(toInput);
       const from = fromInput.value;
@@ -247,10 +246,24 @@
       setRoute(from, to, true);
       container.classList.remove('editing');
       fetchTrains();
+    }
+
+    editor.addEventListener('submit', (event) => {
+      event.preventDefault();
+      applyRoute();
     });
+
+    function handleEnter(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        applyRoute();
+      }
+    }
 
     fromInput.addEventListener('input', () => normalizeInput(fromInput));
     toInput.addEventListener('input', () => normalizeInput(toInput));
+    fromInput.addEventListener('keydown', handleEnter);
+    toInput.addEventListener('keydown', handleEnter);
 
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape' && container.classList.contains('editing')) {

@@ -22,8 +22,40 @@
       margin: 0 0 16px 0;
       padding-bottom: 8px;
       border-bottom: 1px solid #44475a;
+      cursor: pointer;
     }
     h1 span { color: #6272a4; }
+    .editing h1 { margin-bottom: 6px; }
+    .route-editor {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      margin: 0;
+      transition: max-height 0.2s ease, opacity 0.2s ease, margin 0.2s ease;
+    }
+    .editing .route-editor {
+      max-height: 40px;
+      opacity: 1;
+      margin: 0 0 16px 0;
+    }
+    .route-input {
+      width: 60px;
+      background: #1b1c24;
+      border: 1px solid #44475a;
+      color: #f8f8f2;
+      font-family: inherit;
+      font-size: 11px;
+      padding: 4px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+    .route-input::placeholder { color: #6272a4; }
+    .route-input.error { border-color: #ff5555; color: #ff5555; }
+    .route-sep { color: #6272a4; font-size: 12px; }
+    .route-note { color: #6272a4; font-size: 10px; margin-left: 6px; }
     .section {
       margin-bottom: 24px;
       background: #21222c;
@@ -104,7 +136,13 @@
 </head>
 <body>
   <div class="container">
-    <h1><span>~/</span><span id="path-label">commute</span><span class="cursor">_</span></h1>
+    <h1 id="route-header"><span>~/</span><span id="path-label">commute</span><span class="cursor">_</span></h1>
+    <form class="route-editor" id="route-editor" autocomplete="off">
+      <input class="route-input" id="route-from" placeholder="FROM" maxlength="3" aria-label="From station">
+      <span class="route-sep">/</span>
+      <input class="route-input" id="route-to" placeholder="TO" maxlength="3" aria-label="To station">
+      <span class="route-note">enter to apply</span>
+    </form>
     <div class="section">
       <div class="route">
         <span id="outbound-label">WAL <span class="arrow">→</span> WAT</span>
@@ -131,6 +169,10 @@
       return /^[A-Z]{3}$/.test(code);
     }
 
+    function buildRoute(from, to) {
+      return { from, to, path: `commute/${from.toLowerCase()}/${to.toLowerCase()}` };
+    }
+
     function getRouteFromPath() {
       const parts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
       let from = DEFAULT_FROM;
@@ -143,14 +185,84 @@
           to = candidateTo;
         }
       }
-      return { from, to, path: `commute/${from.toLowerCase()}/${to.toLowerCase()}` };
+      return buildRoute(from, to);
     }
 
-    const route = getRouteFromPath();
-    document.getElementById('path-label').textContent = route.path;
-    document.getElementById('outbound-label').textContent = `${route.from} → ${route.to}`;
-    document.getElementById('inbound-label').textContent = `${route.to} → ${route.from}`;
-    document.title = `Commute ${route.from}-${route.to}`;
+    let route = getRouteFromPath();
+    const container = document.querySelector('.container');
+    const header = document.getElementById('route-header');
+    const editor = document.getElementById('route-editor');
+    const fromInput = document.getElementById('route-from');
+    const toInput = document.getElementById('route-to');
+
+    function updateRouteUI() {
+      document.getElementById('path-label').textContent = route.path;
+      document.getElementById('outbound-label').textContent = `${route.from} → ${route.to}`;
+      document.getElementById('inbound-label').textContent = `${route.to} → ${route.from}`;
+      document.title = `Commute ${route.from}-${route.to}`;
+      fromInput.value = route.from;
+      toInput.value = route.to;
+    }
+
+    function setRoute(from, to, updateUrl) {
+      route = buildRoute(from, to);
+      updateRouteUI();
+      if (updateUrl) {
+        const newPath = `/${from.toLowerCase()}/${to.toLowerCase()}`;
+        if (window.location.pathname !== newPath) {
+          history.pushState({}, '', newPath);
+        }
+      }
+    }
+
+    function normalizeInput(input) {
+      input.value = input.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3);
+    }
+
+    function markInvalid(...inputs) {
+      inputs.forEach(input => input.classList.add('error'));
+      setTimeout(() => inputs.forEach(input => input.classList.remove('error')), 900);
+    }
+
+    updateRouteUI();
+
+    header.addEventListener('click', () => {
+      container.classList.toggle('editing');
+      if (container.classList.contains('editing')) {
+        fromInput.focus();
+        fromInput.select();
+      }
+    });
+
+    editor.addEventListener('submit', (event) => {
+      event.preventDefault();
+      normalizeInput(fromInput);
+      normalizeInput(toInput);
+      const from = fromInput.value;
+      const to = toInput.value;
+      if (!isValidCode(from) || !isValidCode(to)) {
+        markInvalid(fromInput, toInput);
+        return;
+      }
+      setRoute(from, to, true);
+      container.classList.remove('editing');
+      fetchTrains();
+    });
+
+    fromInput.addEventListener('input', () => normalizeInput(fromInput));
+    toInput.addEventListener('input', () => normalizeInput(toInput));
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && container.classList.contains('editing')) {
+        container.classList.remove('editing');
+      }
+    });
+
+    window.addEventListener('popstate', () => {
+      route = getRouteFromPath();
+      updateRouteUI();
+      fetchTrains();
+    });
 
     function renderTrains(trains, dest) {
       if (!trains?.length) return '<span class="loading">no trains</span>';
@@ -174,10 +286,11 @@
         const isFast = showFast && stops !== null && fastStopMax !== null && stops <= fastStopMax;
         const isDirect = stops === 1;
         const stopsLabel = stops === null ? '--' : `${stops} stops`;
+        const fastLabel = stops === null ? '<span class="fast">FAST</span>' : `<span class="fast">FAST</span> ${stopsLabel}`;
         return `<div class="train ${cls}">
           <span class="time">${t.std}</span>
           <span class="plat">${plat}</span>
-          <span class="stops">${isDirect ? '<span class="fast">DIRECT</span>' : (isFast ? '<span class="fast">FAST</span>' : stopsLabel)}</span>
+          <span class="stops">${isDirect ? '<span class="fast">DIRECT</span>' : (isFast ? fastLabel : stopsLabel)}</span>
           <span class="status">${t.etd}</span>
         </div>`;
       }).join('');

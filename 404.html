@@ -110,24 +110,24 @@
 </head>
 <body>
   <div class="container">
-    <h1><span>~/</span>commute<span class="cursor">_</span></h1>
-    <div class="hint">Try /WAT/WAL or /WAL/WAT in the URL</div>
+    <h1><span>~/</span><span id="path-label">commute</span><span class="cursor">_</span></h1>
     <div class="section">
       <div class="route">
         <span id="outbound-label">WAL <span class="arrow">→</span> WAT</span>
-        <button class="refresh" onclick="fetchTrains()">↻</button>
+        <button class="refresh" onclick="fetchTrains()">refresh</button>
       </div>
       <div id="outbound"><span class="loading">loading...</span></div>
     </div>
     <div class="section">
       <div class="route">
         <span id="inbound-label">WAT <span class="arrow">→</span> WAL</span>
-        <button class="refresh" onclick="fetchTrains()">↻</button>
+        <button class="refresh" onclick="fetchTrains()">refresh</button>
       </div>
       <div id="inbound"><span class="loading">loading...</span></div>
     </div>
     <div id="alerts"></div>
     <div class="updated" id="updated"></div>
+    <div class="hint">Try /WAT/WAL or /SUR/WOK in the URL</div>
   </div>
   <script>
     const TOKEN = '89a974d2-2b24-44fb-b22a-f9dd3585190f';
@@ -144,32 +144,43 @@
         const from = parts[0].toUpperCase();
         const to = parts[1].toUpperCase();
         if (isValidCode(from) && isValidCode(to)) {
-          return { from, to };
+          return { from, to, path: `commute/${from.toLowerCase()}/${to.toLowerCase()}` };
         }
       }
-      return { from: DEFAULT_FROM, to: DEFAULT_TO };
+      return { from: DEFAULT_FROM, to: DEFAULT_TO, path: 'commute' };
     }
 
     const route = getRouteFromPath();
+    document.getElementById('path-label').textContent = route.path;
     document.getElementById('outbound-label').textContent = `${route.from} → ${route.to}`;
     document.getElementById('inbound-label').textContent = `${route.to} → ${route.from}`;
     document.title = `Commute ${route.from}-${route.to}`;
 
     function renderTrains(trains, dest) {
       if (!trains?.length) return '<span class="loading">no trains</span>';
-      return trains.slice(0, 5).map(t => {
+      const list = trains.slice(0, 5);
+      const stopCounts = list.map(t => {
+        const allStops = t.subsequentCallingPoints?.[0]?.callingPoint || [];
+        if (!allStops.length) return null;
+        const destIdx = allStops.findIndex(s => s.crs === dest);
+        return destIdx >= 0 ? destIdx + 1 : allStops.length;
+      });
+      const definedStops = stopCounts.filter(s => s !== null);
+      const minStops = definedStops.length ? Math.min(...definedStops) : null;
+      const maxStops = definedStops.length ? Math.max(...definedStops) : null;
+      return list.map((t, i) => {
         const delayed = t.etd !== 'On time' && t.etd !== t.std && t.etd !== 'Cancelled';
         const cancelled = t.etd === 'Cancelled';
         const cls = cancelled ? 'cancelled' : (delayed ? 'delayed' : '');
         const plat = t.platform ? `P${t.platform}` : '--';
-        const allStops = t.subsequentCallingPoints?.[0]?.callingPoint || [];
-        const destIdx = allStops.findIndex(s => s.crs === dest);
-        const stops = destIdx >= 0 ? destIdx + 1 : allStops.length;
-        const isFast = stops <= 3;
+        const stops = stopCounts[i];
+        const isFast = stops !== null && minStops !== null && maxStops !== null && minStops < maxStops && stops === minStops;
+        const isDirect = stops === 1;
+        const stopsLabel = stops === null ? '--' : `${stops} stops`;
         return `<div class="train ${cls}">
           <span class="time">${t.std}</span>
           <span class="plat">${plat}</span>
-          <span class="stops">${isFast ? '<span class="fast">FAST</span>' : stops + ' stops'}</span>
+          <span class="stops">${isDirect ? '<span class="fast">DIRECT</span>' : (isFast ? '<span class="fast">FAST</span>' : stopsLabel)}</span>
           <span class="status">${t.etd}</span>
         </div>`;
       }).join('');

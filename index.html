@@ -328,15 +328,27 @@
       }
     }
 
+    function renderError(message) {
+      return `<span class="loading">${message}</span>`;
+    }
+
     async function fetchRoute(from, to, elId) {
       try {
         const res = await fetch(`https://huxley2.azurewebsites.net/departures/${from}/to/${to}?accessToken=${TOKEN}&expand=true`);
+        if (!res.ok) {
+          document.getElementById(elId).innerHTML = renderError('error: are you sure that CRS is valid?');
+          return [];
+        }
         const data = await res.json();
+        if (!data?.trainServices) {
+          document.getElementById(elId).innerHTML = renderError('error: are you sure that CRS is valid?');
+          return data?.nrccMessages || [];
+        }
         document.getElementById(elId).innerHTML = renderTrains(data.trainServices, to);
         updateStationNames(from, to, data);
         return data.nrccMessages || [];
       } catch (e) {
-        document.getElementById(elId).innerHTML = '<span class="loading">error</span>';
+        document.getElementById(elId).innerHTML = renderError('error: unable to load');
         return [];
       }
     }

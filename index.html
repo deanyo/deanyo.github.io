@@ -2,44 +2,130 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Commute</title>
   <style>
-    body { font-family: system-ui; max-width: 600px; margin: 20px auto; padding: 0 10px; }
-    .train { padding: 10px; margin: 5px 0; background: #f5f5f5; border-radius: 4px; display: flex; justify-content: space-between; }
-    .delayed { background: #ffe0e0; }
-    .time { font-weight: bold; }
-    .exp { color: #c00; }
-    #updated { color: #999; font-size: 0.8em; margin-top: 10px; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+      background: #1a1b26;
+      color: #a9b1d6;
+      margin: 0;
+      padding: 16px;
+      min-height: 100vh;
+    }
+    .container { max-width: 500px; margin: 0 auto; }
+    h1 { 
+      color: #7aa2f7;
+      font-size: 14px;
+      margin: 0 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #3b4261;
+    }
+    h1 span { color: #565f89; }
+    .section {
+      margin-bottom: 24px;
+      background: #16161e;
+      border-radius: 8px;
+      padding: 12px;
+      border: 1px solid #3b4261;
+    }
+    .route {
+      color: #bb9af7;
+      font-size: 13px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .route .arrow { color: #565f89; }
+    .refresh {
+      background: none;
+      border: 1px solid #3b4261;
+      color: #7aa2f7;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .refresh:active { background: #3b4261; }
+    .train {
+      display: flex;
+      padding: 8px 0;
+      border-bottom: 1px solid #292e42;
+      font-size: 14px;
+    }
+    .train:last-child { border-bottom: none; }
+    .time { color: #9ece6a; width: 50px; }
+    .plat { color: #565f89; width: 45px; }
+    .status { color: #a9b1d6; flex: 1; text-align: right; }
+    .delayed .time { color: #f7768e; text-decoration: line-through; }
+    .delayed .status { color: #f7768e; }
+    .cancelled .time { color: #565f89; text-decoration: line-through; }
+    .cancelled .status { color: #f7768e; }
+    .updated {
+      color: #565f89;
+      font-size: 11px;
+      text-align: center;
+      margin-top: 16px;
+    }
+    .loading { color: #565f89; font-style: italic; }
+    .cursor { animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
   </style>
 </head>
 <body>
-  <h2>Walton → Waterloo</h2>
-  <div id="trains">Loading...</div>
-  <div id="updated"></div>
+  <div class="container">
+    <h1><span>~/</span>commute<span class="cursor">_</span></h1>
+    <div class="section">
+      <div class="route">
+        <span>WAL <span class="arrow">→</span> WAT</span>
+        <button class="refresh" onclick="fetchTrains()">↻</button>
+      </div>
+      <div id="outbound"><span class="loading">loading...</span></div>
+    </div>
+    <div class="section">
+      <div class="route">
+        <span>WAT <span class="arrow">→</span> WAL</span>
+        <button class="refresh" onclick="fetchTrains()">↻</button>
+      </div>
+      <div id="inbound"><span class="loading">loading...</span></div>
+    </div>
+    <div class="updated" id="updated"></div>
+  </div>
   <script>
     const TOKEN = '89a974d2-2b24-44fb-b22a-f9dd3585190f';
-    const FROM = 'WAL', TO = 'WAT';
 
-    async function fetchTrains() {
+    function renderTrains(trains) {
+      if (!trains?.length) return '<span class="loading">no trains</span>';
+      return trains.slice(0, 5).map(t => {
+        const delayed = t.etd !== 'On time' && t.etd !== t.std && t.etd !== 'Cancelled';
+        const cancelled = t.etd === 'Cancelled';
+        const cls = cancelled ? 'cancelled' : (delayed ? 'delayed' : '');
+        const plat = t.platform ? `P${t.platform}` : '--';
+        return `<div class="train ${cls}">
+          <span class="time">${t.std}</span>
+          <span class="plat">${plat}</span>
+          <span class="status">${t.etd}</span>
+        </div>`;
+      }).join('');
+    }
+
+    async function fetchRoute(from, to, elId) {
       try {
-        const res = await fetch(`https://huxley2.azurewebsites.net/departures/${FROM}/to/${TO}?accessToken=${TOKEN}`);
+        const res = await fetch(`https://huxley2.azurewebsites.net/departures/${from}/to/${to}?accessToken=${TOKEN}`);
         const data = await res.json();
-        const trains = data.trainServices || [];
-        
-        document.getElementById('trains').innerHTML = trains.length 
-          ? trains.slice(0, 6).map(t => {
-              const delayed = t.etd !== 'On time';
-              return `<div class="train ${delayed ? 'delayed' : ''}">
-                <span class="time">${t.std}</span>
-                <span class="${delayed ? 'exp' : ''}">${t.etd}</span>
-              </div>`;
-            }).join('')
-          : 'No trains found';
-        document.getElementById('updated').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+        document.getElementById(elId).innerHTML = renderTrains(data.trainServices);
       } catch (e) {
-        document.getElementById('trains').innerHTML = 'Error loading trains';
+        document.getElementById(elId).innerHTML = '<span class="loading">error</span>';
       }
+    }
+
+    function fetchTrains() {
+      fetchRoute('WAL', 'WAT', 'outbound');
+      fetchRoute('WAT', 'WAL', 'inbound');
+      document.getElementById('updated').textContent = new Date().toLocaleTimeString();
     }
 
     fetchTrains();

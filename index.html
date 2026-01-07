@@ -132,7 +132,7 @@
         return `<div class="train ${cls}">
           <span class="time">${t.std}</span>
           <span class="plat">${plat}</span>
-          ${isFast ? '<span class="fast">FAST</span>' : `<span class="stops">${stops} stops</span>`}
+          <span class="stops">${isFast ? '<span class="fast">FAST</span>' : stops + ' stops'}</span>
           <span class="status">${t.etd}</span>
         </div>`;
       }).join('');

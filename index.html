@@ -8,89 +8,88 @@
     * { box-sizing: border-box; }
     body {
       font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-      background: #1a1b26;
-      color: #a9b1d6;
+      background: #282a36;
+      color: #f8f8f2;
       margin: 0;
       padding: 16px;
       min-height: 100vh;
     }
     .container { max-width: 500px; margin: 0 auto; }
     h1 { 
-      color: #7aa2f7;
+      color: #8be9fd;
       font-size: 14px;
       margin: 0 0 16px 0;
       padding-bottom: 8px;
-      border-bottom: 1px solid #3b4261;
+      border-bottom: 1px solid #44475a;
     }
-    h1 span { color: #565f89; }
+    h1 span { color: #6272a4; }
     .section {
       margin-bottom: 24px;
-      background: #16161e;
+      background: #21222c;
       border-radius: 8px;
       padding: 12px;
-      border: 1px solid #3b4261;
+      border: 1px solid #44475a;
     }
     .route {
-      color: #bb9af7;
+      color: #bd93f9;
       font-size: 13px;
       margin-bottom: 10px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .route .arrow { color: #565f89; }
+    .route .arrow { color: #6272a4; }
     .refresh {
       background: none;
-      border: 1px solid #3b4261;
-      color: #7aa2f7;
+      border: 1px solid #44475a;
+      color: #8be9fd;
       padding: 4px 8px;
       border-radius: 4px;
       font-family: inherit;
       font-size: 11px;
       cursor: pointer;
     }
-    .refresh:active { background: #3b4261; }
+    .refresh:active { background: #44475a; }
     .train {
       display: flex;
       padding: 8px 0;
-      border-bottom: 1px solid #292e42;
+      border-bottom: 1px solid #44475a;
       font-size: 14px;
       align-items: center;
     }
     .train:last-child { border-bottom: none; }
-    .time { color: #9ece6a; width: 50px; }
-    .plat { color: #565f89; width: 35px; }
+    .time { color: #50fa7b; width: 50px; }
+    .plat { color: #6272a4; width: 35px; }
     .fast { 
-      color: #e0af68;
+      color: #ffb86c;
       font-size: 10px;
-      background: #e0af6820;
+      background: #ffb86c20;
       padding: 2px 5px;
       border-radius: 3px;
-      margin-right: 8px;
     }
-    .stops { color: #565f89; font-size: 11px; flex: 1; }
-    .status { color: #a9b1d6; text-align: right; min-width: 60px; }
-    .delayed .time { color: #f7768e; text-decoration: line-through; }
-    .delayed .status { color: #f7768e; }
-    .cancelled .time { color: #565f89; text-decoration: line-through; }
-    .cancelled .status { color: #f7768e; }
+    .stops { color: #6272a4; font-size: 11px; flex: 1; }
+    .status { color: #f8f8f2; text-align: right; min-width: 60px; }
+    .delayed .time { color: #ff5555; text-decoration: line-through; }
+    .delayed .status { color: #ff5555; }
+    .cancelled .time { color: #6272a4; text-decoration: line-through; }
+    .cancelled .status { color: #ff5555; }
     .updated {
-      color: #565f89;
+      color: #6272a4;
       font-size: 11px;
       text-align: center;
       margin-top: 16px;
     }
     .alerts {
-      background: #f7768e20;
-      border: 1px solid #f7768e40;
+      background: #ff555520;
+      border: 1px solid #ff555540;
       border-radius: 8px;
       padding: 10px 12px;
       margin-bottom: 16px;
       font-size: 12px;
-      color: #f7768e;
+      color: #ff5555;
     }
-    .alerts a { color: #7aa2f7; }
-    .loading { color: #565f89; font-style: italic; }
+    .alerts a { color: #8be9fd; }
+    .loading { color: #6272a4; font-style: italic; }
     .cursor { animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0; } }
   </style>

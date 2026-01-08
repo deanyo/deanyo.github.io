@@ -357,7 +357,7 @@
         } else if (from === 'WAT' && WAT_PLATFORMS[t.std]) {
           const pred = WAT_PLATFORMS[t.std];
           const hue = Math.round(pred.c * 1.2);
-          platDisplay = `<span class="plat-guess" style="color:hsl(${hue},70%,60%)"><span class="num">~${pred.p}</span><span class="pct">${pred.c}%</span></span>`;
+          platDisplay = `<span class="plat-guess" style="color:hsl(${hue},70%,60%)"><span class="num">~P${pred.p}</span><span class="pct">${pred.c}%</span></span>`;
         } else {
           platDisplay = '--';
         }

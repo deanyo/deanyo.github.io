@@ -129,12 +129,16 @@
       text-decoration: none; 
       font-size: 11px;
     }
-    .updated {
-      color: #938aad;
-      font-size: 11px;
-      text-align: center;
+    .footer {
+      display: flex;
+      justify-content: space-between;
       margin-top: 16px;
+      font-size: 11px;
+      color: #938aad;
     }
+    .footer a { color: #938aad; text-decoration: none; }
+    .footer a:hover { color: #b3f4f3; }
+    .updated { }
     .alerts {
       background: #e965a520;
       border: 1px solid #e965a540;
@@ -182,7 +186,10 @@
       <div id="inbound"><span class="loading">loading...</span></div>
     </div>
     <div id="alerts"></div>
-    <div class="updated" id="updated"></div>
+    <div class="footer">
+      <span class="updated" id="updated"></span>
+      <a href="https://github.com/deanyo/deanyo.github.io" target="_blank">src</a>
+    </div>
   </div>
   <script>
     const API_BASE = 'https://dnyo-proxy.deanryanit.workers.dev';

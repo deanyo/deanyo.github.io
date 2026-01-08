@@ -100,7 +100,22 @@
     .train:last-child { border-bottom: none; }
     .time { color: #50fa7b; width: 48px; font-weight: bold; flex-shrink: 0; }
     .plat { color: #ff79c6; min-width: 28px; flex-shrink: 0; }
-    .plat-guess { color: #bd93f9; opacity: 0.8; }
+    .plat-guess { 
+      cursor: help;
+      position: relative;
+    }
+    .plat-guess::after {
+      content: attr(data-conf);
+      position: absolute;
+      left: 100%;
+      margin-left: 4px;
+      opacity: 0;
+      font-size: 10px;
+      color: #6272a4;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+    .plat-guess:hover::after { opacity: 1; }
     .fast { 
       color: #282a36;
       font-size: 10px;
@@ -352,7 +367,9 @@
           platDisplay = `P${t.platform}`;
         } else if (from === 'WAT' && WAT_PLATFORMS[t.std]) {
           const pred = WAT_PLATFORMS[t.std];
-          platDisplay = `<span class="plat-guess">~${pred.p}</span>`;
+          // Colour gradient: green (high) -> yellow -> red (low)
+          const hue = Math.round(pred.c * 1.2); // 0-114 (red to green)
+          platDisplay = `<span class="plat-guess" style="color:hsl(${hue},70%,60%)" data-conf="${pred.c}%">~${pred.p}</span>`;
         } else {
           platDisplay = '--';
         }

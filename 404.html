@@ -124,6 +124,11 @@
       color: #938aad;
     }
     .cancelled .fast { opacity: 0.5; }
+    .cancelled-tag { 
+      color: #e965a5; 
+      text-decoration: none; 
+      font-size: 11px;
+    }
     .updated {
       color: #938aad;
       font-size: 11px;
@@ -371,12 +376,13 @@
         const stopsLabel = stops === null ? '' : `${stops} stops`;
         const fastLabel = `<span class="fast">FAST</span> ${stopsLabel}`;
         const dest = t.destination?.[0]?.locationName || '';
+        const destDisplay = cancelled ? `${dest} <span class="cancelled-tag">Cancelled</span>` : dest;
         return `<div class="train ${cls}">
           <span class="time">${t.std}</span>
           <span class="plat">${platDisplay}</span>
-          <span class="dest">${dest}</span>
+          <span class="dest">${destDisplay}</span>
           <span class="stops">${isDirect ? '<span class="fast">DIRECT</span>' : (isFast ? fastLabel : stopsLabel)}</span>
-          <span class="status">${t.etd}</span>
+          <span class="status">${cancelled ? 'On time' : t.etd}</span>
         </div>`;
       }).join('');
     }

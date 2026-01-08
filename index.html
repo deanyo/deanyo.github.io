@@ -358,9 +358,19 @@
       return Math.min(MAX_LIMIT, value);
     }
 
+    function getFastOnlyFromSearch() {
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get('fast') || params.get('fastOnly');
+      if (raw === null) return false;
+      if (raw === '') return true;
+      const value = raw.toLowerCase();
+      return !['0', 'false', 'no', 'off'].includes(value);
+    }
+
     const stationNames = {};
     let route = getRouteFromPath();
     let trainLimit = getLimitFromSearch();
+    let fastOnly = getFastOnlyFromSearch();
     const container = document.querySelector('.container');
     const header = document.getElementById('route-header');
     const editor = document.getElementById('route-editor');
@@ -471,6 +481,7 @@
     window.addEventListener('popstate', () => {
       route = getRouteFromPath();
       trainLimit = getLimitFromSearch();
+      fastOnly = getFastOnlyFromSearch();
       updateRouteUI();
       fetchTrains();
     });
@@ -577,7 +588,7 @@
 
     function renderTrains(trains, destCrs, from) {
       if (!trains?.length) return '<span class="loading">no trains</span>';
-      const list = trains.slice(0, trainLimit);
+      const list = trains;
       const stopCounts = list.map(t => {
         const allStops = t.subsequentCallingPoints?.[0]?.callingPoint || [];
         if (!allStops.length) return null;
@@ -594,6 +605,7 @@
       const fastStopMax = uniqueStops.length >= 3 ? uniqueStops[1] : (uniqueStops[0] ?? null);
       const showFast = uniqueStops.length >= 2;
       let html = '';
+      let shown = 0;
       list.forEach((t, i) => {
         const delayed = t.etd !== 'On time' && t.etd !== t.std && t.etd !== 'Cancelled';
         const cancelled = t.etd === 'Cancelled';
@@ -609,8 +621,15 @@
           platDisplay = '--';
         }
         const stops = stopCounts[i];
-        const isFast = showFast && stops !== null && fastStopMax !== null && stops <= fastStopMax;
+        const isFastCandidate = stops !== null && fastStopMax !== null && stops <= fastStopMax;
+        const isFast = showFast && isFastCandidate;
         const isDirect = stops === 1;
+        if (fastOnly && !(isDirect || isFastCandidate)) {
+          return;
+        }
+        if (shown >= trainLimit) {
+          return;
+        }
         const stopsLabel = stops === null ? '' : `${stops} stops`;
         const fastLabel = `<span class="fast">FAST</span> ${stopsLabel}`;
         const dest = t.destination?.[0]?.locationName || '';
@@ -627,7 +646,11 @@
           ${arrDisplay}
           <span class="status">${statusText}</span>
         </div>`;
+        shown += 1;
       });
+      if (!shown) {
+        return `<span class="loading">${fastOnly ? 'no fast trains' : 'no trains'}</span>`;
+      }
       return html;
     }
 
@@ -696,6 +719,7 @@
         pulseRefreshButton();
       }
       trainLimit = getLimitFromSearch();
+      fastOnly = getFastOnlyFromSearch();
       const [msgs1, msgs2] = await Promise.all([
         fetchRoute(route.from, route.to, 'outbound'),
         fetchRoute(route.to, route.from, 'inbound')

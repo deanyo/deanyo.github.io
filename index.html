@@ -93,8 +93,10 @@
       font-family: inherit;
       font-size: 11px;
       cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease;
     }
     .refresh:active { background: #3f3951; }
+    .refresh.is-loading { animation: refresh-pulse 0.35s ease; }
     .train {
       display: flex;
       padding: 8px 0;
@@ -167,6 +169,11 @@
     .loading { color: #938aad; font-style: italic; }
     .cursor { animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0; } }
+    @keyframes refresh-pulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(179, 244, 243, 0); }
+      50% { transform: scale(1.06); box-shadow: 0 0 0 6px rgba(179, 244, 243, 0.25); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(179, 244, 243, 0); }
+    }
     @media (max-width: 480px) {
       body { padding: 12px; }
       .container { max-width: 100%; }
@@ -201,7 +208,7 @@
   <div class="container">
     <div class="header">
       <h1 id="route-header"><span>~/</span><span id="path-label">commute</span><span class="cursor">_</span></h1>
-      <button type="button" class="refresh" onclick="fetchTrains()">refresh</button>
+      <button type="button" class="refresh" onclick="fetchTrains(true)">refresh</button>
     </div>
     <form class="route-editor" id="route-editor" autocomplete="off">
       <input class="route-input" id="route-from" placeholder="FROM" maxlength="3" aria-label="From station">
@@ -291,6 +298,8 @@
     const editor = document.getElementById('route-editor');
     const fromInput = document.getElementById('route-from');
     const toInput = document.getElementById('route-to');
+    const refreshButton = document.querySelector('.refresh');
+    let refreshPulseTimer = null;
 
     function getStationLabel(code) {
       return stationNames[code] || code;
@@ -487,7 +496,23 @@
       }
     }
 
-    async function fetchTrains() {
+    function pulseRefreshButton() {
+      if (!refreshButton) return;
+      refreshButton.classList.remove('is-loading');
+      void refreshButton.offsetWidth;
+      refreshButton.classList.add('is-loading');
+      if (refreshPulseTimer) {
+        clearTimeout(refreshPulseTimer);
+      }
+      refreshPulseTimer = setTimeout(() => {
+        refreshButton.classList.remove('is-loading');
+      }, 450);
+    }
+
+    async function fetchTrains(manual = false) {
+      if (manual) {
+        pulseRefreshButton();
+      }
       const [msgs1, msgs2] = await Promise.all([
         fetchRoute(route.from, route.to, 'outbound'),
         fetchRoute(route.to, route.from, 'inbound')

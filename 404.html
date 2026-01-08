@@ -21,7 +21,8 @@
       min-height: 100vh;
       text-transform: lowercase;
     }
-    .container { max-width: 500px; margin: 0 auto; }
+    .container { max-width: 500px; margin: 0 auto; position: relative; transition: transform 0.2s ease; }
+    .container.is-pulling { transition: none; }
     .header {
       display: flex;
       justify-content: space-between;
@@ -49,7 +50,7 @@
       transition: max-height 0.2s ease, opacity 0.2s ease, margin 0.2s ease;
     }
     .editing .route-editor {
-      max-height: 40px;
+      max-height: 48px;
       opacity: 1;
       margin: 0 0 16px 0;
     }
@@ -59,8 +60,8 @@
       border: 1px solid #3f3951;
       color: #eee9fc;
       font-family: inherit;
-      font-size: 11px;
-      padding: 4px 6px;
+      font-size: 12px;
+      padding: 6px 8px;
       border-radius: 4px;
       text-transform: uppercase;
     }
@@ -93,10 +94,25 @@
       font-family: inherit;
       font-size: 11px;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      line-height: 1;
+      position: relative;
+      touch-action: manipulation;
       transition: color 0.2s ease, border-color 0.2s ease;
     }
     .refresh:active { background: #3f3951; }
     .refresh.is-loading { animation: refresh-pulse 0.35s ease; }
+    @media (pointer: coarse) {
+      .refresh::before {
+        content: '';
+        position: absolute;
+        top: -12px;
+        bottom: -12px;
+        left: -10px;
+        right: -10px;
+      }
+    }
     .train {
       display: flex;
       padding: 8px 0;
@@ -105,6 +121,7 @@
       align-items: center;
       gap: 8px;
     }
+    .train.next { box-shadow: inset 2px 0 0 #b3f4f3; }
     .train:last-child { border-bottom: none; }
     .time { color: #b1f2a7; width: 48px; font-weight: bold; flex-shrink: 0; }
     .plat { color: #b1f2a7; width: 36px; flex-shrink: 0; text-align: right; }
@@ -145,6 +162,8 @@
       margin-top: 16px;
       font-size: 11px;
       color: #938aad;
+      flex-wrap: wrap;
+      gap: 6px;
     }
     .footer a { color: #938aad; text-decoration: none; }
     .footer a:hover { color: #b3f4f3; }
@@ -167,6 +186,35 @@
     .alerts summary::-webkit-details-marker { display: none; }
     .alerts-body { margin-top: 8px; line-height: 1.4; }
     .loading { color: #938aad; font-style: italic; }
+    .pull-indicator {
+      position: absolute;
+      top: -18px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 10px;
+      color: #938aad;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease;
+      pointer-events: none;
+    }
+    .pull-indicator.is-visible { opacity: 1; transform: translateY(0); }
+    .pull-indicator.is-ready { color: #b3f4f3; }
+    .now-marker {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #938aad;
+      font-size: 10px;
+      margin: 6px 0;
+    }
+    .now-marker::before,
+    .now-marker::after {
+      content: '';
+      flex: 1;
+      border-top: 1px dashed #3f3951;
+    }
     .cursor { animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0; } }
     @keyframes refresh-pulse {
@@ -206,6 +254,7 @@
 </head>
 <body>
   <div class="container">
+    <div class="pull-indicator" id="pull-indicator">pull to refresh</div>
     <div class="header">
       <h1 id="route-header"><span>~/</span><span id="path-label">commute</span><span class="cursor">_</span></h1>
       <button type="button" class="refresh" onclick="fetchTrains(true)">refresh</button>
@@ -267,6 +316,7 @@
     };
     const DEFAULT_FROM = 'WAL';
     const DEFAULT_TO = 'WAT';
+    const REFRESH_INTERVAL_MS = 60000;
 
     function isValidCode(code) {
       return /^[A-Z]{3}$/.test(code);
@@ -299,7 +349,16 @@
     const fromInput = document.getElementById('route-from');
     const toInput = document.getElementById('route-to');
     const refreshButton = document.querySelector('.refresh');
+    const updatedEl = document.getElementById('updated');
+    const pullIndicator = document.getElementById('pull-indicator');
     let refreshPulseTimer = null;
+    let refreshTimer = null;
+    let footerTickTimer = null;
+    let lastUpdatedAt = null;
+    let nextRefreshAt = null;
+    let pullStartY = null;
+    let pullOffset = 0;
+    let isPulling = false;
 
     function getStationLabel(code) {
       return stationNames[code] || code;
@@ -337,6 +396,8 @@
     }
 
     updateRouteUI();
+    updateFooter();
+    setupPullToRefresh();
 
     header.addEventListener('click', () => {
       container.classList.toggle('editing');
@@ -395,9 +456,132 @@
       fetchTrains();
     });
 
+    function timeToMinutes(time) {
+      if (!time) return null;
+      const parts = time.split(':');
+      if (parts.length !== 2) return null;
+      const hours = Number(parts[0]);
+      const mins = Number(parts[1]);
+      if (Number.isNaN(hours) || Number.isNaN(mins)) return null;
+      return (hours * 60) + mins;
+    }
+
+    function formatAgo(seconds) {
+      if (seconds < 5) return 'just now';
+      if (seconds < 60) return `${seconds}s`;
+      const mins = Math.floor(seconds / 60);
+      if (mins < 60) return `${mins}m`;
+      const hours = Math.floor(mins / 60);
+      return `${hours}h`;
+    }
+
+    function formatCountdown(seconds) {
+      if (seconds <= 0) return 'now';
+      if (seconds < 60) return `${seconds}s`;
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return secs ? `${mins}m ${secs}s` : `${mins}m`;
+    }
+
+    function updateFooter() {
+      if (!updatedEl) return;
+      if (!lastUpdatedAt) {
+        updatedEl.textContent = 'updated --';
+        return;
+      }
+      const agoSeconds = Math.max(0, Math.floor((Date.now() - lastUpdatedAt) / 1000));
+      const refreshSeconds = nextRefreshAt
+        ? Math.max(0, Math.ceil((nextRefreshAt - Date.now()) / 1000))
+        : null;
+      const agoLabel = formatAgo(agoSeconds);
+      if (refreshSeconds === null) {
+        updatedEl.textContent = `updated ${agoLabel} ago`;
+      } else {
+        updatedEl.textContent = `updated ${agoLabel} ago · refresh in ${formatCountdown(refreshSeconds)}`;
+      }
+    }
+
+    function scheduleAutoRefresh() {
+      if (refreshTimer) {
+        clearTimeout(refreshTimer);
+      }
+      nextRefreshAt = Date.now() + REFRESH_INTERVAL_MS;
+      refreshTimer = setTimeout(() => {
+        fetchTrains();
+      }, REFRESH_INTERVAL_MS);
+      if (!footerTickTimer) {
+        footerTickTimer = setInterval(updateFooter, 1000);
+      }
+      updateFooter();
+    }
+
+    function updatePullIndicator(visible, ready) {
+      if (!pullIndicator) return;
+      pullIndicator.classList.toggle('is-visible', visible);
+      pullIndicator.classList.toggle('is-ready', ready);
+      pullIndicator.textContent = ready ? 'release to refresh' : 'pull to refresh';
+    }
+
+    function resetPull() {
+      isPulling = false;
+      pullStartY = null;
+      pullOffset = 0;
+      container.classList.remove('is-pulling');
+      container.style.transform = '';
+      updatePullIndicator(false, false);
+    }
+
+    function setupPullToRefresh() {
+      if (!('ontouchstart' in window)) return;
+      const pullThreshold = 55;
+      const pullMax = 90;
+      window.addEventListener('touchstart', (event) => {
+        if (window.scrollY > 0) return;
+        if (event.touches.length !== 1) return;
+        pullStartY = event.touches[0].clientY;
+        isPulling = true;
+      }, { passive: true });
+
+      window.addEventListener('touchmove', (event) => {
+        if (!isPulling || pullStartY === null) return;
+        const currentY = event.touches[0].clientY;
+        const delta = currentY - pullStartY;
+        if (delta <= 0) return;
+        pullOffset = Math.min(delta, pullMax);
+        container.classList.add('is-pulling');
+        container.style.transform = `translateY(${pullOffset}px)`;
+        updatePullIndicator(true, pullOffset >= pullThreshold);
+        event.preventDefault();
+      }, { passive: false });
+
+      window.addEventListener('touchend', () => {
+        if (!isPulling) return;
+        const shouldRefresh = pullOffset >= pullThreshold;
+        resetPull();
+        if (shouldRefresh) {
+          fetchTrains(true);
+        }
+      });
+
+      window.addEventListener('touchcancel', resetPull);
+    }
     function renderTrains(trains, destCrs, from) {
       if (!trains?.length) return '<span class="loading">no trains</span>';
       const list = trains.slice(0, 5);
+      const now = new Date();
+      const nowMinutes = (now.getHours() * 60) + now.getMinutes();
+      let nextIdx = -1;
+      let smallestDelta = Infinity;
+      list.forEach((t, i) => {
+        const trainMinutes = timeToMinutes(t.std);
+        if (trainMinutes === null) return;
+        let delta = trainMinutes - nowMinutes;
+        if (delta < 0) delta += 1440;
+        if (delta < smallestDelta) {
+          smallestDelta = delta;
+          nextIdx = i;
+        }
+      });
       const stopCounts = list.map(t => {
         const allStops = t.subsequentCallingPoints?.[0]?.callingPoint || [];
         if (!allStops.length) return null;
@@ -413,10 +597,12 @@
       const uniqueStops = [...new Set(definedStops)].sort((a, b) => a - b);
       const fastStopMax = uniqueStops.length >= 3 ? uniqueStops[1] : (uniqueStops[0] ?? null);
       const showFast = uniqueStops.length >= 2;
-      return list.map((t, i) => {
+      let html = '';
+      list.forEach((t, i) => {
         const delayed = t.etd !== 'On time' && t.etd !== t.std && t.etd !== 'Cancelled';
         const cancelled = t.etd === 'Cancelled';
         const cls = cancelled ? 'cancelled' : (delayed ? 'delayed' : '');
+        const isNext = i === nextIdx;
         let platDisplay;
         if (t.platform) {
           platDisplay = `P${t.platform}`;
@@ -438,7 +624,10 @@
         const arr = arrivalTimes[i];
         const statusText = cancelled ? 'On time' : t.etd;
         const arrDisplay = arr ? `<span class="arr">arr ${arr}</span>` : '';
-        return `<div class="train ${cls}">
+        if (isNext) {
+          html += `<div class="now-marker"><span>now</span></div>`;
+        }
+        html += `<div class="train ${cls}${isNext ? ' next' : ''}">
           <span class="time">${t.std}</span>
           <span class="plat">${platDisplay}</span>
           <span class="dest">${destDisplay}</span>
@@ -446,7 +635,8 @@
           ${arrDisplay}
           <span class="status">${statusText}</span>
         </div>`;
-      }).join('');
+      });
+      return html;
     }
 
     function updateStationNames(from, to, data) {
@@ -530,11 +720,11 @@
             <div class="alerts-body">${unique.map(a => `<strong>${a.station}:</strong> ${a.msg}`).join('<br><br>')}</div>
           </details>`
         : '';
-      document.getElementById('updated').textContent = new Date().toLocaleTimeString();
+      lastUpdatedAt = Date.now();
+      scheduleAutoRefresh();
     }
 
     fetchTrains();
-    setInterval(fetchTrains, 60000);
   </script>
 </body>
 </html>

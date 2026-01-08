@@ -146,14 +146,14 @@
     <div class="section">
       <div class="route">
         <span id="outbound-label">WAL <span class="arrow">→</span> WAT</span>
-        <button class="refresh" onclick="fetchTrains()">refresh</button>
+        <button type="button" class="refresh" onclick="fetchTrains()">refresh</button>
       </div>
       <div id="outbound"><span class="loading">loading...</span></div>
     </div>
     <div class="section">
       <div class="route">
         <span id="inbound-label">WAT <span class="arrow">→</span> WAL</span>
-        <button class="refresh" onclick="fetchTrains()">refresh</button>
+        <button type="button" class="refresh" onclick="fetchTrains()">refresh</button>
       </div>
       <div id="inbound"><span class="loading">loading...</span></div>
     </div>
@@ -202,8 +202,8 @@
 
     function updateRouteUI() {
       document.getElementById('path-label').textContent = route.path;
-      document.getElementById('outbound-label').textContent = `${getStationLabel(route.from)} → ${getStationLabel(route.to)}`;
-      document.getElementById('inbound-label').textContent = `${getStationLabel(route.to)} → ${getStationLabel(route.from)}`;
+      document.getElementById('outbound-label').innerHTML = `${getStationLabel(route.from)} <span class="arrow">→</span> ${getStationLabel(route.to)}`;
+      document.getElementById('inbound-label').innerHTML = `${getStationLabel(route.to)} <span class="arrow">→</span> ${getStationLabel(route.from)}`;
       document.title = `My Commute: ${route.from}-${route.to}`;
       if (!container.classList.contains('editing')) {
         fromInput.value = route.from;

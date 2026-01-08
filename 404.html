@@ -124,11 +124,18 @@
     .train:last-child { border-bottom: none; }
     .time { color: #b1f2a7; width: 48px; font-weight: bold; flex-shrink: 0; }
     .plat { color: #b1f2a7; width: 36px; flex-shrink: 0; text-align: right; }
-    .plat-guess { cursor: help; }
+    .plat-guess { cursor: default; }
     .plat-guess .num { display: inline; }
     .plat-guess .pct { display: none; color: #eee9fc; }
-    .plat-guess:hover .num { display: none; }
-    .plat-guess:hover .pct { display: inline; }
+    @media (hover: hover) and (pointer: fine) {
+      .plat-guess { cursor: help; }
+      .plat-guess:hover .num { display: none; }
+      .plat-guess:hover .pct { display: inline; }
+    }
+    @media (hover: none) {
+      .plat-guess:hover .num { display: inline; }
+      .plat-guess:hover .pct { display: none; }
+    }
     .fast { 
       color: #b3f4f3;
       font-size: 10px;

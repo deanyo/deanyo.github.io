@@ -429,12 +429,17 @@
         fetchRoute(route.from, route.to, 'outbound'),
         fetchRoute(route.to, route.from, 'inbound')
       ]);
-      const allMsgs = [...msgs1, ...msgs2].map(m => m.value);
-      const unique = [...new Set(allMsgs)];
+      const label1 = getStationLabel(route.from);
+      const label2 = getStationLabel(route.to);
+      const tagged1 = msgs1.map(m => ({ station: label1, msg: m.value }));
+      const tagged2 = msgs2.map(m => ({ station: label2, msg: m.value }));
+      const all = [...tagged1, ...tagged2];
+      const seen = new Set();
+      const unique = all.filter(a => seen.has(a.msg) ? false : seen.add(a.msg));
       document.getElementById('alerts').innerHTML = unique.length
         ? `<details class="alerts">
             <summary>Service alerts (${unique.length})</summary>
-            <div class="alerts-body">${unique.join('<br><br>')}</div>
+            <div class="alerts-body">${unique.map(a => `<strong>${a.station}:</strong> ${a.msg}`).join('<br><br>')}</div>
           </details>`
         : '';
       document.getElementById('updated').textContent = new Date().toLocaleTimeString();

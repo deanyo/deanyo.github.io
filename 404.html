@@ -322,6 +322,8 @@
     };
     const DEFAULT_FROM = 'WAL';
     const DEFAULT_TO = 'WAT';
+    const DEFAULT_LIMIT = 5;
+    const MAX_LIMIT = 20;
     const REFRESH_INTERVAL_MS = 60000;
 
     function isValidCode(code) {
@@ -347,8 +349,18 @@
       return buildRoute(from, to);
     }
 
+    function getLimitFromSearch() {
+      const params = new URLSearchParams(window.location.search);
+      const raw = params.get('n') || params.get('limit');
+      if (!raw) return DEFAULT_LIMIT;
+      const value = Number.parseInt(raw, 10);
+      if (!Number.isFinite(value) || value <= 0) return DEFAULT_LIMIT;
+      return Math.min(MAX_LIMIT, value);
+    }
+
     const stationNames = {};
     let route = getRouteFromPath();
+    let trainLimit = getLimitFromSearch();
     const container = document.querySelector('.container');
     const header = document.getElementById('route-header');
     const editor = document.getElementById('route-editor');
@@ -458,6 +470,7 @@
 
     window.addEventListener('popstate', () => {
       route = getRouteFromPath();
+      trainLimit = getLimitFromSearch();
       updateRouteUI();
       fetchTrains();
     });
@@ -563,7 +576,7 @@
     }
     function renderTrains(trains, destCrs, from) {
       if (!trains?.length) return '<span class="loading">no trains</span>';
-      const list = trains.slice(0, 5);
+      const list = trains.slice(0, trainLimit);
       const stopCounts = list.map(t => {
         const allStops = t.subsequentCallingPoints?.[0]?.callingPoint || [];
         if (!allStops.length) return null;
@@ -681,6 +694,7 @@
       if (manual) {
         pulseRefreshButton();
       }
+      trainLimit = getLimitFromSearch();
       const [msgs1, msgs2] = await Promise.all([
         fetchRoute(route.from, route.to, 'outbound'),
         fetchRoute(route.to, route.from, 'inbound')

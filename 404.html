@@ -103,7 +103,8 @@
       padding: 2px 5px;
       border-radius: 3px;
     }
-    .stops { color: #8be9fd; font-size: 11px; flex: 1; }
+    .stops { color: #8be9fd; font-size: 11px; min-width: 70px; text-align: right; }
+    .dest { color: #f8f8f2; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .status { color: #f8f8f2; text-align: right; min-width: 60px; }
     .delayed .time { color: #ff5555; text-decoration: line-through; }
     .delayed .status { color: #ff5555; }
@@ -351,11 +352,13 @@
         const stops = stopCounts[i];
         const isFast = showFast && stops !== null && fastStopMax !== null && stops <= fastStopMax;
         const isDirect = stops === 1;
-        const stopsLabel = stops === null ? '--' : `${stops} stops`;
-        const fastLabel = `${stopsLabel} <span class="fast">FAST</span>`;
+        const stopsLabel = stops === null ? '' : `${stops} stops`;
+        const fastLabel = `<span class="fast">FAST</span> ${stopsLabel}`;
+        const dest = t.destination?.[0]?.locationName || '';
         return `<div class="train ${cls}">
           <span class="time">${t.std}</span>
           <span class="plat">${platDisplay}</span>
+          <span class="dest">${dest}</span>
           <span class="stops">${isDirect ? '<span class="fast">DIRECT</span>' : (isFast ? fastLabel : stopsLabel)}</span>
           <span class="status">${t.etd}</span>
         </div>`;

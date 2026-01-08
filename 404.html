@@ -107,11 +107,12 @@
     .plat-guess:hover .num { display: none; }
     .plat-guess:hover .pct { display: inline; }
     .fast { 
-      color: #282433;
+      color: #b3f4f3;
       font-size: 10px;
       font-weight: bold;
-      background: #ebde76;
-      padding: 2px 5px;
+      background: transparent;
+      border: 1px solid #b3f4f3;
+      padding: 1px 4px;
       border-radius: 3px;
     }
     .stops { color: #b3f4f3; font-size: 11px; min-width: 70px; text-align: right; }
@@ -124,7 +125,7 @@
     .cancelled .time, .cancelled .plat, .cancelled .dest, .cancelled .stops, .cancelled .arr, .cancelled .status { 
       color: #938aad;
     }
-    .cancelled .fast { background: #938aad; }
+    .cancelled .fast { border-color: #938aad; color: #938aad; }
     .cancelled-tag { 
       color: #e965a5; 
       text-decoration: none; 

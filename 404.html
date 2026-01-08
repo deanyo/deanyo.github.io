@@ -114,14 +114,26 @@
       }
     }
     .train {
+      position: relative;
       display: flex;
-      padding: 8px 0;
+      padding: 8px 0 8px 10px;
       border-bottom: 1px solid #3f3951;
       font-size: 14px;
       align-items: center;
       gap: 8px;
     }
-    .train.next { box-shadow: inset 2px 0 0 #b3f4f3; }
+    .train.next::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #b3f4f3;
+      transform: translateY(-50%);
+      box-shadow: 0 0 0 4px rgba(179, 244, 243, 0.12);
+    }
     .train:last-child { border-bottom: none; }
     .time { color: #b1f2a7; width: 48px; font-weight: bold; flex-shrink: 0; }
     .plat { color: #b1f2a7; width: 36px; flex-shrink: 0; text-align: right; }
@@ -201,20 +213,6 @@
     }
     .pull-indicator.is-visible { opacity: 1; transform: translateY(0); }
     .pull-indicator.is-ready { color: #b3f4f3; }
-    .now-marker {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #938aad;
-      font-size: 10px;
-      margin: 6px 0;
-    }
-    .now-marker::before,
-    .now-marker::after {
-      content: '';
-      flex: 1;
-      border-top: 1px dashed #3f3951;
-    }
     .cursor { animation: blink 1s infinite; }
     @keyframes blink { 50% { opacity: 0; } }
     @keyframes refresh-pulse {
@@ -624,9 +622,6 @@
         const arr = arrivalTimes[i];
         const statusText = cancelled ? 'On time' : t.etd;
         const arrDisplay = arr ? `<span class="arr">arr ${arr}</span>` : '';
-        if (isNext) {
-          html += `<div class="now-marker"><span>now</span></div>`;
-        }
         html += `<div class="train ${cls}${isNext ? ' next' : ''}">
           <span class="time">${t.std}</span>
           <span class="plat">${platDisplay}</span>

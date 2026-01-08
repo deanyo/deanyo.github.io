@@ -118,8 +118,12 @@
     .status { color: #eee9fc; text-align: right; width: 65px; flex-shrink: 0; }
     .delayed .time { color: #e965a5; text-decoration: line-through; }
     .delayed .status { color: #e965a5; }
-    .cancelled .time { color: #938aad; text-decoration: line-through; }
-    .cancelled .status { color: #e965a5; }
+    .cancelled { opacity: 0.5; }
+    .cancelled .time, .cancelled .plat, .cancelled .dest, .cancelled .stops, .cancelled .status { 
+      text-decoration: line-through; 
+      color: #938aad;
+    }
+    .cancelled .fast { opacity: 0.5; }
     .updated {
       color: #938aad;
       font-size: 11px;

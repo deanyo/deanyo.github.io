@@ -92,7 +92,8 @@
     }
     .train:last-child { border-bottom: none; }
     .time { color: #50fa7b; width: 50px; }
-    .plat { color: #6272a4; width: 35px; }
+    .plat { color: #6272a4; width: 55px; }
+    .plat-guess { color: #6272a4; font-size: 10px; opacity: 0.7; }
     .fast { 
       color: #ffb86c;
       font-size: 10px;
@@ -162,6 +163,34 @@
   </div>
   <script>
     const API_BASE = 'https://dnyo-proxy.deanryanit.workers.dev';
+
+    // Historical platform predictions for WAT departures (p=platform, c=confidence%)
+    const WAT_PLATFORMS = {
+      "00:09": { p: 8, c: 60 }, "05:08": { p: 19, c: 33 }, "05:20": { p: 4, c: 50 },
+      "05:50": { p: 5, c: 33 }, "06:20": { p: 16, c: 50 }, "06:42": { p: 13, c: 85 },
+      "06:50": { p: 3, c: 57 }, "07:12": { p: 13, c: 85 }, "07:17": { p: 4, c: 83 },
+      "07:42": { p: 12, c: 85 }, "07:50": { p: 6, c: 57 }, "08:12": { p: 12, c: 85 },
+      "08:20": { p: 4, c: 71 }, "08:42": { p: 11, c: 85 }, "08:50": { p: 3, c: 71 },
+      "09:12": { p: 11, c: 57 }, "09:20": { p: 3, c: 57 }, "09:42": { p: 7, c: 57 },
+      "09:50": { p: 1, c: 42 }, "10:12": { p: 15, c: 71 }, "10:20": { p: 3, c: 42 },
+      "10:42": { p: 11, c: 100 }, "10:50": { p: 3, c: 71 }, "11:12": { p: 10, c: 100 },
+      "11:20": { p: 3, c: 57 }, "11:42": { p: 12, c: 85 }, "11:50": { p: 2, c: 28 },
+      "12:12": { p: 8, c: 57 }, "12:20": { p: 3, c: 42 }, "12:42": { p: 8, c: 71 },
+      "12:50": { p: 1, c: 50 }, "13:12": { p: 7, c: 85 }, "13:20": { p: 1, c: 25 },
+      "13:42": { p: 9, c: 100 }, "13:50": { p: 3, c: 50 }, "14:12": { p: 12, c: 71 },
+      "14:20": { p: 3, c: 42 }, "14:42": { p: 8, c: 75 }, "14:50": { p: 3, c: 71 },
+      "15:12": { p: 8, c: 75 }, "15:20": { p: 3, c: 62 }, "15:42": { p: 9, c: 87 },
+      "15:50": { p: 3, c: 62 }, "16:12": { p: 8, c: 90 }, "16:20": { p: 3, c: 72 },
+      "16:42": { p: 9, c: 76 }, "16:50": { p: 3, c: 57 }, "17:02": { p: 7, c: 92 },
+      "17:20": { p: 2, c: 78 }, "17:32": { p: 8, c: 84 }, "17:50": { p: 3, c: 64 },
+      "18:02": { p: 9, c: 66 }, "18:20": { p: 3, c: 50 }, "18:50": { p: 3, c: 46 },
+      "19:12": { p: 7, c: 76 }, "19:20": { p: 3, c: 46 }, "19:42": { p: 14, c: 38 },
+      "19:50": { p: 3, c: 50 }, "20:20": { p: 2, c: 58 }, "20:42": { p: 12, c: 75 },
+      "20:50": { p: 3, c: 54 }, "21:20": { p: 2, c: 42 }, "21:42": { p: 10, c: 42 },
+      "21:50": { p: 3, c: 57 }, "22:20": { p: 3, c: 71 }, "22:42": { p: 15, c: 66 },
+      "22:50": { p: 2, c: 42 }, "23:12": { p: 16, c: 42 }, "23:20": { p: 6, c: 66 },
+      "23:48": { p: 12, c: 40 }
+    };
     const DEFAULT_FROM = 'WAL';
     const DEFAULT_TO = 'WAT';
 
@@ -290,7 +319,7 @@
       fetchTrains();
     });
 
-    function renderTrains(trains, dest) {
+    function renderTrains(trains, dest, from) {
       if (!trains?.length) return '<span class="loading">no trains</span>';
       const list = trains.slice(0, 5);
       const stopCounts = list.map(t => {
@@ -307,7 +336,15 @@
         const delayed = t.etd !== 'On time' && t.etd !== t.std && t.etd !== 'Cancelled';
         const cancelled = t.etd === 'Cancelled';
         const cls = cancelled ? 'cancelled' : (delayed ? 'delayed' : '');
-        const plat = t.platform ? `P${t.platform}` : '--';
+        let platDisplay;
+        if (t.platform) {
+          platDisplay = `P${t.platform}`;
+        } else if (from === 'WAT' && WAT_PLATFORMS[t.std]) {
+          const pred = WAT_PLATFORMS[t.std];
+          platDisplay = `<span class="plat-guess">P${pred.p}? ${pred.c}%</span>`;
+        } else {
+          platDisplay = '--';
+        }
         const stops = stopCounts[i];
         const isFast = showFast && stops !== null && fastStopMax !== null && stops <= fastStopMax;
         const isDirect = stops === 1;
@@ -315,7 +352,7 @@
         const fastLabel = `${stopsLabel} <span class="fast">FAST</span>`;
         return `<div class="train ${cls}">
           <span class="time">${t.std}</span>
-          <span class="plat">${plat}</span>
+          <span class="plat">${platDisplay}</span>
           <span class="stops">${isDirect ? '<span class="fast">DIRECT</span>' : (isFast ? fastLabel : stopsLabel)}</span>
           <span class="status">${t.etd}</span>
         </div>`;
@@ -360,7 +397,7 @@
           document.getElementById(elId).innerHTML = renderError(errorMessageFor(from, to));
           return data?.nrccMessages || [];
         }
-        document.getElementById(elId).innerHTML = renderTrains(data.trainServices, to);
+        document.getElementById(elId).innerHTML = renderTrains(data.trainServices, to, from);
         updateStationNames(from, to, data);
         return data.nrccMessages || [];
       } catch (e) {

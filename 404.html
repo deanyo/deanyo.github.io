@@ -114,6 +114,7 @@
       border-radius: 3px;
     }
     .stops { color: #b3f4f3; font-size: 11px; min-width: 70px; text-align: right; }
+    .arr { color: #938aad; font-size: 11px; min-width: 50px; text-align: right; }
     .dest { color: #eee9fc; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .status { color: #eee9fc; text-align: right; width: 65px; flex-shrink: 0; }
     .delayed .time { color: #e965a5; text-decoration: line-through; }
@@ -129,6 +130,7 @@
       color: #e965a5; 
       text-decoration: none; 
       font-size: 11px;
+      cursor: help;
     }
     .footer {
       display: flex;
@@ -351,14 +353,19 @@
       fetchTrains();
     });
 
-    function renderTrains(trains, dest, from) {
+    function renderTrains(trains, destCrs, from) {
       if (!trains?.length) return '<span class="loading">no trains</span>';
       const list = trains.slice(0, 5);
       const stopCounts = list.map(t => {
         const allStops = t.subsequentCallingPoints?.[0]?.callingPoint || [];
         if (!allStops.length) return null;
-        const destIdx = allStops.findIndex(s => s.crs === dest);
+        const destIdx = allStops.findIndex(s => s.crs === destCrs);
         return destIdx >= 0 ? destIdx + 1 : allStops.length;
+      });
+      const arrivalTimes = list.map(t => {
+        const allStops = t.subsequentCallingPoints?.[0]?.callingPoint || [];
+        const destStop = allStops.find(s => s.crs === destCrs);
+        return destStop?.st || null;
       });
       const definedStops = stopCounts.filter(s => s !== null);
       const uniqueStops = [...new Set(definedStops)].sort((a, b) => a - b);
@@ -384,13 +391,18 @@
         const stopsLabel = stops === null ? '' : `${stops} stops`;
         const fastLabel = `<span class="fast">FAST</span> ${stopsLabel}`;
         const dest = t.destination?.[0]?.locationName || '';
-        const destDisplay = cancelled ? `${dest} <span class="cancelled-tag">Cancelled</span>` : dest;
+        const cancelReason = t.cancelReason ? ` title="${t.cancelReason}"` : '';
+        const destDisplay = cancelled ? `${dest} <span class="cancelled-tag"${cancelReason}>Cancelled</span>` : dest;
+        const arr = arrivalTimes[i];
+        const statusText = cancelled ? 'On time' : t.etd;
+        const arrDisplay = arr ? `<span class="arr">arr ${arr}</span>` : '';
         return `<div class="train ${cls}">
           <span class="time">${t.std}</span>
           <span class="plat">${platDisplay}</span>
           <span class="dest">${destDisplay}</span>
           <span class="stops">${isDirect ? '<span class="fast">DIRECT</span>' : (isFast ? fastLabel : stopsLabel)}</span>
-          <span class="status">${cancelled ? 'On time' : t.etd}</span>
+          ${arrDisplay}
+          <span class="status">${statusText}</span>
         </div>`;
       }).join('');
     }

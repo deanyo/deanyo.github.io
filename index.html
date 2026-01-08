@@ -92,9 +92,9 @@
       gap: 8px;
     }
     .train:last-child { border-bottom: none; }
-    .time { color: #50fa7b; width: 48px; font-weight: bold; }
-    .plat { color: #ff79c6; width: 32px; }
-    .plat-guess { color: #bd93f9; font-size: 11px; }
+    .time { color: #50fa7b; width: 48px; font-weight: bold; flex-shrink: 0; }
+    .plat { color: #ff79c6; min-width: 28px; flex-shrink: 0; }
+    .plat-guess { color: #bd93f9; opacity: 0.8; }
     .fast { 
       color: #282a36;
       font-size: 10px;
@@ -345,7 +345,7 @@
           platDisplay = `P${t.platform}`;
         } else if (from === 'WAT' && WAT_PLATFORMS[t.std]) {
           const pred = WAT_PLATFORMS[t.std];
-          platDisplay = `<span class="plat-guess">P${pred.p}? ${pred.c}%</span>`;
+          platDisplay = `<span class="plat-guess">~${pred.p}</span>`;
         } else {
           platDisplay = '--';
         }

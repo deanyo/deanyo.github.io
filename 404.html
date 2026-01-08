@@ -161,7 +161,7 @@
     <div class="updated" id="updated"></div>
   </div>
   <script>
-    const TOKEN = '89a974d2-2b24-44fb-b22a-f9dd3585190f';
+    const API_BASE = 'https://dnyo-proxy.deanryanit.workers.dev';
     const DEFAULT_FROM = 'WAL';
     const DEFAULT_TO = 'WAT';
 
@@ -347,7 +347,7 @@
 
     async function fetchRoute(from, to, elId) {
       try {
-        const res = await fetch(`https://huxley2.azurewebsites.net/departures/${from}/to/${to}?accessToken=${TOKEN}&expand=true`);
+        const res = await fetch(`${API_BASE}/departures/${from}/to/${to}`);
         const bodyText = await res.text();
         let data = null;
         try {

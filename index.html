@@ -16,12 +16,18 @@
       min-height: 100vh;
     }
     .container { max-width: 500px; margin: 0 auto; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #44475a;
+    }
     h1 { 
       color: #8be9fd;
       font-size: 14px;
-      margin: 0 0 16px 0;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #44475a;
+      margin: 0;
       cursor: pointer;
     }
     h1 span { color: #6272a4; }
@@ -140,7 +146,10 @@
 </head>
 <body>
   <div class="container">
-    <h1 id="route-header"><span>~/</span><span id="path-label">commute</span><span class="cursor">_</span></h1>
+    <div class="header">
+      <h1 id="route-header"><span>~/</span><span id="path-label">commute</span><span class="cursor">_</span></h1>
+      <button type="button" class="refresh" onclick="fetchTrains()">↻</button>
+    </div>
     <form class="route-editor" id="route-editor" autocomplete="off">
       <input class="route-input" id="route-from" placeholder="FROM" maxlength="3" aria-label="From station">
       <span class="route-sep">/</span>
@@ -150,14 +159,12 @@
     <div class="section">
       <div class="route">
         <span id="outbound-label">WAL <span class="arrow">→</span> WAT</span>
-        <button type="button" class="refresh" onclick="fetchTrains()">refresh</button>
       </div>
       <div id="outbound"><span class="loading">loading...</span></div>
     </div>
     <div class="section">
       <div class="route">
         <span id="inbound-label">WAT <span class="arrow">→</span> WAL</span>
-        <button type="button" class="refresh" onclick="fetchTrains()">refresh</button>
       </div>
       <div id="inbound"><span class="loading">loading...</span></div>
     </div>

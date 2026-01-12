@@ -1,747 +1,163 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#282433">
-  <title>My Commute</title>
-  <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMyODI0MzMiLz4KICA8dGV4dCB4PSIyNTYiIHk9IjI5MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSIgZm9udC1zaXplPSIyMjAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjYjFmMmE3Ij7igLpfPC90ZXh0Pgo8L3N2Zz4K">
-  <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+CiAgPHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMyODI0MzMiLz4KICA8dGV4dCB4PSIyNTYiIHk9IjI5MCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSIgZm9udC1zaXplPSIyMjAiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSIjYjFmMmE3Ij7igLpfPC90ZXh0Pgo8L3N2Zz4K">
-  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a1621">
+  <title>dnyo.co.uk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 256 256'><rect width='256' height='256' fill='%231a1621'/><text x='128' y='155' text-anchor='middle' font-family='JetBrains%20Mono,monospace' font-size='96' font-weight='600' fill='%23b3f4f3'>~</text></svg>">
   <style>
+    :root {
+      --bg-0: #14111b;
+      --bg-1: #1a1621;
+      --bg-2: #231f32;
+      --ink: #eee9fc;
+      --muted: #9a90b3;
+      --line: #3f3951;
+      --accent: #b3f4f3;
+      --accent-2: #e192ef;
+      --accent-3: #b1f2a7;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
     * { box-sizing: border-box; }
     body {
-      font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-      background: #282433;
-      color: #eee9fc;
       margin: 0;
-      padding: 16px;
+      font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+      color: var(--ink);
+      background: radial-gradient(1000px 600px at 10% -20%, #2b2436, transparent),
+        radial-gradient(700px 500px at 90% -10%, #1c2a35, transparent),
+        linear-gradient(160deg, var(--bg-0), var(--bg-1) 40%, var(--bg-0));
       min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(transparent 95%, rgba(255, 255, 255, 0.03)),
+        linear-gradient(90deg, transparent 95%, rgba(255, 255, 255, 0.02));
+      background-size: 40px 40px;
+      pointer-events: none;
+      opacity: 0.4;
+      mix-blend-mode: screen;
+    }
+    .shell {
+      max-width: 400px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+    .hero-title {
+      font-family: "Space Grotesk", "JetBrains Mono", sans-serif;
+      font-size: 32px;
+      letter-spacing: -0.02em;
+      margin: 0 0 8px 0;
+      color: var(--accent);
+    }
+    .hero-sub {
+      margin: 0 0 24px 0;
+      color: var(--muted);
+      font-size: 13px;
       text-transform: lowercase;
     }
-    .container { max-width: 500px; margin: 0 auto; position: relative; transition: transform 0.2s ease; }
-    .container.is-pulling { transition: none; }
-    .header {
+    .links {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid #3f3951;
+      flex-direction: column;
+      gap: 12px;
     }
-    h1 { 
-      color: #b3f4f3;
-      font-size: 14px;
-      margin: 0;
-      cursor: pointer;
-    }
-    h1 span { color: #938aad; }
-    .editing h1 { margin-bottom: 6px; }
-    .route-editor {
+    .link {
       display: flex;
       align-items: center;
-      gap: 6px;
-      max-height: 0;
-      opacity: 0;
-      overflow: hidden;
-      margin: 0;
-      transition: max-height 0.2s ease, opacity 0.2s ease, margin 0.2s ease;
-    }
-    .editing .route-editor {
-      max-height: 48px;
-      opacity: 1;
-      margin: 0 0 16px 0;
-    }
-    .route-input {
-      width: 60px;
-      background: #1a1621;
-      border: 1px solid #3f3951;
-      color: #eee9fc;
-      font-family: inherit;
-      font-size: 12px;
-      padding: 6px 8px;
-      border-radius: 4px;
-      text-transform: uppercase;
-    }
-    .route-input::placeholder { color: #938aad; }
-    .route-input.error { border-color: #e965a5; color: #e965a5; }
-    .route-sep { color: #938aad; font-size: 12px; }
-    .route-note { color: #938aad; font-size: 10px; margin-left: 6px; }
-    .section {
-      margin-bottom: 24px;
-      background: #1e1a29;
+      gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg-2);
+      border: 1px solid var(--line);
       border-radius: 8px;
-      padding: 12px;
-      border: 1px solid #3f3951;
+      text-decoration: none;
+      color: var(--ink);
+      transition: border-color 0.15s, background 0.15s;
     }
-    .route {
-      color: #e192ef;
-      font-size: 13px;
-      margin-bottom: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    .link:hover {
+      border-color: var(--accent);
+      background: rgba(179, 244, 243, 0.05);
     }
-    .route .arrow { color: #938aad; }
-    .refresh {
-      background: none;
-      border: 1px solid #3f3951;
-      color: #b3f4f3;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-family: inherit;
-      font-size: 11px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      line-height: 1;
-      position: relative;
-      touch-action: manipulation;
-      transition: color 0.2s ease, border-color 0.2s ease;
+    .link-icon {
+      font-size: 18px;
+      width: 28px;
+      text-align: center;
     }
-    .refresh:active { background: #3f3951; }
-    .refresh.is-loading { animation: refresh-pulse 0.35s ease; }
-    @media (pointer: coarse) {
-      .refresh::before {
-        content: '';
-        position: absolute;
-        top: -12px;
-        bottom: -12px;
-        left: -10px;
-        right: -10px;
-      }
+    .link-text {
+      flex: 1;
     }
-    .train {
-      display: flex;
-      padding: 8px 0;
-      border-bottom: 1px solid #3f3951;
+    .link-title {
       font-size: 14px;
-      align-items: center;
-      gap: 8px;
+      font-weight: 600;
+      color: var(--accent);
     }
-    .train:last-child { border-bottom: none; }
-    .time { color: #b1f2a7; width: 48px; font-weight: bold; flex-shrink: 0; }
-    .plat { color: #b1f2a7; width: 36px; flex-shrink: 0; text-align: right; }
-    .plat-guess { cursor: default; }
-    .plat-guess .num { display: inline; }
-    .plat-guess .pct { display: none; color: #eee9fc; }
-    @media (hover: hover) and (pointer: fine) {
-      .plat-guess { cursor: help; }
-      .plat-guess:hover .num { display: none; }
-      .plat-guess:hover .pct { display: inline; }
-    }
-    @media (hover: none) {
-      .plat-guess:hover .num { display: inline; }
-      .plat-guess:hover .pct { display: none; }
-    }
-    .fast { 
-      color: #b3f4f3;
-      font-size: 10px;
-      font-weight: bold;
-      background: transparent;
-      border: 1px solid #b3f4f3;
-      padding: 1px 4px;
-      border-radius: 3px;
-    }
-    .stops { color: #b3f4f3; font-size: 11px; min-width: 70px; text-align: right; }
-    .arr { color: #938aad; font-size: 11px; min-width: 50px; text-align: right; }
-    .dest { color: #eee9fc; flex: 1; font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .status { color: #eee9fc; text-align: right; width: 65px; flex-shrink: 0; }
-    .delayed .time { color: #e965a5; text-decoration: line-through; }
-    .delayed .status { color: #e965a5; }
-    .cancelled { opacity: 0.5; }
-    .cancelled .time, .cancelled .plat, .cancelled .dest, .cancelled .stops, .cancelled .arr, .cancelled .status { 
-      color: #938aad;
-    }
-    .cancelled .fast { border-color: #938aad; color: #938aad; }
-    .cancelled-tag { 
-      color: #e965a5; 
-      text-decoration: none; 
+    .link-desc {
       font-size: 11px;
-      cursor: help;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .link-arrow {
+      color: var(--muted);
+      font-size: 14px;
     }
     .footer {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: center;
-      margin-top: 16px;
-      font-size: 11px;
-      color: #938aad;
-      gap: 6px;
-    }
-    .updated {
-      grid-column: 2;
+      margin-top: 24px;
       text-align: center;
-      justify-self: center;
+      font-size: 11px;
+      color: var(--muted);
     }
     .footer a {
-      grid-column: 3;
-      justify-self: end;
+      color: var(--muted);
+      text-decoration: none;
     }
-    .footer a { color: #938aad; text-decoration: none; }
-    .footer a:hover { color: #b3f4f3; }
-    .alerts {
-      background: #e965a520;
-      border: 1px solid #e965a540;
-      border-radius: 8px;
-      padding: 8px 12px;
-      margin-bottom: 16px;
-      font-size: 12px;
-      color: #e965a5;
-    }
-    .alerts a { color: #b3f4f3; }
-    .alerts summary {
-      cursor: pointer;
-      list-style: none;
-      outline: none;
-    }
-    .alerts summary::-webkit-details-marker { display: none; }
-    .alerts-body { margin-top: 8px; line-height: 1.4; }
-    .loading { color: #938aad; font-style: italic; }
-    .pull-indicator {
-      position: absolute;
-      top: -18px;
-      left: 0;
-      right: 0;
-      text-align: center;
-      font-size: 10px;
-      color: #938aad;
-      opacity: 0;
-      transform: translateY(-6px);
-      transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease;
-      pointer-events: none;
-    }
-    .pull-indicator.is-visible { opacity: 1; transform: translateY(0); }
-    .pull-indicator.is-ready { color: #b3f4f3; }
-    .cursor { animation: blink 1s infinite; }
-    @keyframes blink { 50% { opacity: 0; } }
-    @keyframes refresh-pulse {
-      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(179, 244, 243, 0); }
-      50% { transform: scale(1.06); box-shadow: 0 0 0 6px rgba(179, 244, 243, 0.25); }
-      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(179, 244, 243, 0); }
-    }
-    @media (max-width: 480px) {
-      body { padding: 12px; }
-      .container { max-width: 100%; }
-      .header {
-        align-items: center;
-        gap: 8px;
-      }
-      h1 {
-        flex: 1;
-        min-width: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .route-editor { flex-wrap: wrap; }
-      .route-note {
-        width: 100%;
-        margin-left: 0;
-      }
-      .train {
-        display: grid;
-        grid-template-columns: 48px 36px minmax(0, 1fr) 70px;
-        grid-template-rows: auto auto;
-        column-gap: 8px;
-        row-gap: 4px;
-        align-items: center;
-      }
-      .time { grid-column: 1; grid-row: 1 / span 2; }
-      .plat { grid-column: 2; grid-row: 1 / span 2; }
-      .dest { grid-column: 3; grid-row: 1; }
-      .status { grid-column: 4; grid-row: 1; width: auto; }
-      .stops { grid-column: 3; grid-row: 2; text-align: left; min-width: 0; }
-      .arr { grid-column: 4; grid-row: 2; text-align: right; min-width: 0; }
+    .footer a:hover {
+      color: var(--accent);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="pull-indicator" id="pull-indicator">pull to refresh</div>
-    <div class="header">
-      <h1 id="route-header"><span>~/</span><span id="path-label">commute</span><span class="cursor">_</span></h1>
-      <button type="button" class="refresh" onclick="fetchTrains(true)">refresh</button>
+  <div class="shell">
+    <h1 class="hero-title">~/dnyo</h1>
+    <p class="hero-sub">personal projects & tools</p>
+    <div class="links">
+      <a href="/commute/" class="link">
+        <span class="link-icon">🚂</span>
+        <div class="link-text">
+          <div class="link-title">commute</div>
+          <div class="link-desc">live train departures for my commute</div>
+        </div>
+        <span class="link-arrow">→</span>
+      </a>
+      <a href="/league-arena-duo/" class="link">
+        <span class="link-icon">⚔️</span>
+        <div class="link-text">
+          <div class="link-title">league arena duo</div>
+          <div class="link-desc">arena duo comp analyzer & roast generator</div>
+        </div>
+        <span class="link-arrow">→</span>
+      </a>
+      <a href="/tbc-compare/" class="link">
+        <span class="link-icon">📊</span>
+        <div class="link-text">
+          <div class="link-title">tbc compare</div>
+          <div class="link-desc">warcraft logs comparison tool</div>
+        </div>
+        <span class="link-arrow">→</span>
+      </a>
     </div>
-    <form class="route-editor" id="route-editor" autocomplete="off">
-      <input class="route-input" id="route-from" placeholder="FROM" maxlength="3" aria-label="From station">
-      <span class="route-sep">/</span>
-      <input class="route-input" id="route-to" placeholder="TO" maxlength="3" aria-label="To station">
-      <span class="route-note">enter to apply</span>
-    </form>
-    <div class="section">
-      <div class="route">
-        <span id="outbound-label">WAL <span class="arrow">→</span> WAT</span>
-      </div>
-      <div id="outbound"><span class="loading">loading...</span></div>
-    </div>
-    <div class="section">
-      <div class="route">
-        <span id="inbound-label">WAT <span class="arrow">→</span> WAL</span>
-      </div>
-      <div id="inbound"><span class="loading">loading...</span></div>
-    </div>
-    <div id="alerts"></div>
     <div class="footer">
-      <span class="updated" id="updated"></span>
-      <a href="https://github.com/deanyo/deanyo.github.io" target="_blank">src</a>
+      <a href="https://github.com/deanyo" target="_blank">github.com/deanyo</a>
     </div>
   </div>
-  <script>
-    const API_BASE = 'https://dnyo-proxy.deanryanit.workers.dev';
-
-    // Platform predictions for WAT departures - merged from Network Rail schedule + observed data
-    // p=platform, c=confidence% (capped at observed accuracy where available)
-    const WAT_PLATFORMS = {
-      "00:09": { p: 5, c: 60 }, "05:08": { p: 19, c: 33 }, "05:20": { p: 4, c: 50 },
-      "05:50": { p: 5, c: 33 }, "06:20": { p: 16, c: 50 }, "06:42": { p: 13, c: 85 },
-      "06:50": { p: 3, c: 57 }, "07:12": { p: 13, c: 85 }, "07:17": { p: 4, c: 83 },
-      "07:42": { p: 12, c: 85 }, "07:50": { p: 6, c: 57 }, "08:13": { p: 12, c: 95 },
-      "08:20": { p: 4, c: 71 }, "08:42": { p: 11, c: 85 }, "08:50": { p: 3, c: 71 },
-      "09:12": { p: 11, c: 57 }, "09:20": { p: 3, c: 57 }, "09:42": { p: 7, c: 57 },
-      "09:50": { p: 1, c: 42 }, "10:12": { p: 15, c: 71 }, "10:20": { p: 3, c: 42 },
-      "10:42": { p: 11, c: 95 }, "10:50": { p: 3, c: 71 }, "11:12": { p: 10, c: 95 },
-      "11:20": { p: 3, c: 57 }, "11:42": { p: 12, c: 85 }, "11:50": { p: 2, c: 28 },
-      "12:12": { p: 8, c: 57 }, "12:20": { p: 3, c: 42 }, "12:42": { p: 8, c: 71 },
-      "12:50": { p: 3, c: 50 }, "13:12": { p: 7, c: 85 }, "13:20": { p: 2, c: 25 },
-      "13:42": { p: 9, c: 95 }, "13:50": { p: 3, c: 50 }, "14:12": { p: 12, c: 71 },
-      "14:20": { p: 3, c: 42 }, "14:42": { p: 8, c: 75 }, "14:50": { p: 3, c: 71 },
-      "15:12": { p: 8, c: 75 }, "15:20": { p: 3, c: 62 }, "15:42": { p: 9, c: 87 },
-      "15:50": { p: 3, c: 62 }, "16:12": { p: 8, c: 90 }, "16:20": { p: 3, c: 72 },
-      "16:42": { p: 9, c: 76 }, "16:50": { p: 3, c: 57 }, "17:02": { p: 7, c: 92 },
-      "17:20": { p: 2, c: 78 }, "17:32": { p: 8, c: 84 }, "17:50": { p: 3, c: 64 },
-      "18:02": { p: 9, c: 66 }, "18:20": { p: 3, c: 50 }, "18:50": { p: 3, c: 46 },
-      "19:12": { p: 7, c: 76 }, "19:20": { p: 3, c: 46 }, "19:42": { p: 14, c: 38 },
-      "19:50": { p: 3, c: 50 }, "20:20": { p: 2, c: 58 }, "20:42": { p: 12, c: 75 },
-      "20:50": { p: 3, c: 54 }, "21:20": { p: 3, c: 42 }, "21:42": { p: 15, c: 42 },
-      "21:50": { p: 3, c: 57 }, "22:20": { p: 3, c: 71 }, "22:42": { p: 12, c: 66 },
-      "22:50": { p: 2, c: 42 }, "23:12": { p: 15, c: 42 }, "23:20": { p: 6, c: 66 },
-      "23:42": { p: 12, c: 95 }, "23:48": { p: 12, c: 40 }, "23:50": { p: 1, c: 95 }
-    };
-    const DEFAULT_FROM = 'WAL';
-    const DEFAULT_TO = 'WAT';
-    const DEFAULT_LIMIT = 5;
-    const MAX_LIMIT = 20;
-    const REFRESH_INTERVAL_MS = 60000;
-
-    function isValidCode(code) {
-      return /^[A-Z]{3}$/.test(code);
-    }
-
-    function buildRoute(from, to) {
-      return { from, to, path: `commute/${from.toLowerCase()}/${to.toLowerCase()}` };
-    }
-
-    function getRouteFromPath() {
-      const parts = window.location.pathname.replace(/\/+$/, '').split('/').filter(Boolean);
-      let from = DEFAULT_FROM;
-      let to = DEFAULT_TO;
-      if (parts.length >= 2) {
-        const candidateFrom = parts[0].toUpperCase();
-        const candidateTo = parts[1].toUpperCase();
-        if (isValidCode(candidateFrom) && isValidCode(candidateTo)) {
-          from = candidateFrom;
-          to = candidateTo;
-        }
-      }
-      return buildRoute(from, to);
-    }
-
-    function getLimitFromSearch() {
-      const params = new URLSearchParams(window.location.search);
-      const raw = params.get('n') || params.get('limit');
-      if (!raw) return DEFAULT_LIMIT;
-      const value = Number.parseInt(raw, 10);
-      if (!Number.isFinite(value) || value <= 0) return DEFAULT_LIMIT;
-      return Math.min(MAX_LIMIT, value);
-    }
-
-    function getFastOnlyFromSearch() {
-      const params = new URLSearchParams(window.location.search);
-      const raw = params.get('fast') || params.get('fastOnly');
-      if (raw === null) return false;
-      if (raw === '') return true;
-      const value = raw.toLowerCase();
-      return !['0', 'false', 'no', 'off'].includes(value);
-    }
-
-    const stationNames = {};
-    let route = getRouteFromPath();
-    let trainLimit = getLimitFromSearch();
-    let fastOnly = getFastOnlyFromSearch();
-    const container = document.querySelector('.container');
-    const header = document.getElementById('route-header');
-    const editor = document.getElementById('route-editor');
-    const fromInput = document.getElementById('route-from');
-    const toInput = document.getElementById('route-to');
-    const refreshButton = document.querySelector('.refresh');
-    const updatedEl = document.getElementById('updated');
-    const pullIndicator = document.getElementById('pull-indicator');
-    let refreshPulseTimer = null;
-    let refreshTimer = null;
-    let footerTickTimer = null;
-    let lastUpdatedAt = null;
-    let nextRefreshAt = null;
-    let pullStartY = null;
-    let pullOffset = 0;
-    let isPulling = false;
-
-    function getStationLabel(code) {
-      return stationNames[code] || code;
-    }
-
-    function updateRouteUI() {
-      document.getElementById('path-label').textContent = route.path;
-      document.getElementById('outbound-label').innerHTML = `${getStationLabel(route.from)} <span class="arrow">→</span> ${getStationLabel(route.to)}`;
-      document.getElementById('inbound-label').innerHTML = `${getStationLabel(route.to)} <span class="arrow">→</span> ${getStationLabel(route.from)}`;
-      document.title = `My Commute: ${route.from}-${route.to}`;
-      if (!container.classList.contains('editing')) {
-        fromInput.value = route.from;
-        toInput.value = route.to;
-      }
-    }
-
-    function setRoute(from, to, updateUrl) {
-      route = buildRoute(from, to);
-      updateRouteUI();
-      if (updateUrl) {
-        const newPath = `/${from.toLowerCase()}/${to.toLowerCase()}`;
-        if (window.location.pathname !== newPath) {
-          history.pushState({}, '', newPath);
-        }
-      }
-    }
-
-    function normalizeInput(input) {
-      input.value = input.value.toUpperCase().replace(/[^A-Z]/g, '').slice(0, 3);
-    }
-
-    function markInvalid(...inputs) {
-      inputs.forEach(input => input.classList.add('error'));
-      setTimeout(() => inputs.forEach(input => input.classList.remove('error')), 900);
-    }
-
-    updateRouteUI();
-    updateFooter();
-    setupPullToRefresh();
-
-    header.addEventListener('click', () => {
-      container.classList.toggle('editing');
-      if (container.classList.contains('editing')) {
-        fromInput.focus();
-        fromInput.select();
-      }
-    });
-
-    document.addEventListener('click', (event) => {
-      if (!container.classList.contains('editing')) return;
-      if (header.contains(event.target) || editor.contains(event.target)) return;
-      container.classList.remove('editing');
-    });
-
-    function applyRoute() {
-      normalizeInput(fromInput);
-      normalizeInput(toInput);
-      const from = fromInput.value;
-      const to = toInput.value;
-      if (!isValidCode(from) || !isValidCode(to)) {
-        markInvalid(fromInput, toInput);
-        return;
-      }
-      setRoute(from, to, true);
-      container.classList.remove('editing');
-      fetchTrains();
-    }
-
-    editor.addEventListener('submit', (event) => {
-      event.preventDefault();
-      applyRoute();
-    });
-
-    function handleEnter(event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        applyRoute();
-      }
-    }
-
-    fromInput.addEventListener('input', () => normalizeInput(fromInput));
-    toInput.addEventListener('input', () => normalizeInput(toInput));
-    fromInput.addEventListener('keydown', handleEnter);
-    toInput.addEventListener('keydown', handleEnter);
-
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape' && container.classList.contains('editing')) {
-        container.classList.remove('editing');
-      }
-    });
-
-    window.addEventListener('popstate', () => {
-      route = getRouteFromPath();
-      trainLimit = getLimitFromSearch();
-      fastOnly = getFastOnlyFromSearch();
-      updateRouteUI();
-      fetchTrains();
-    });
-
-    function formatAgo(seconds) {
-      if (seconds < 5) return 'just now';
-      if (seconds < 60) return `${seconds}s`;
-      const mins = Math.floor(seconds / 60);
-      if (mins < 60) return `${mins}m`;
-      const hours = Math.floor(mins / 60);
-      return `${hours}h`;
-    }
-
-    function formatCountdown(seconds) {
-      if (seconds <= 0) return 'now';
-      if (seconds < 60) return `${seconds}s`;
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return secs ? `${mins}m ${secs}s` : `${mins}m`;
-    }
-
-    function updateFooter() {
-      if (!updatedEl) return;
-      if (!lastUpdatedAt) {
-        updatedEl.textContent = 'updated --';
-        return;
-      }
-      const agoSeconds = Math.max(0, Math.floor((Date.now() - lastUpdatedAt) / 1000));
-      const refreshSeconds = nextRefreshAt
-        ? Math.max(0, Math.ceil((nextRefreshAt - Date.now()) / 1000))
-        : null;
-      const agoLabel = formatAgo(agoSeconds);
-      if (refreshSeconds === null) {
-        updatedEl.textContent = `updated ${agoLabel} ago`;
-      } else {
-        updatedEl.textContent = `updated ${agoLabel} ago · refresh in ${formatCountdown(refreshSeconds)}`;
-      }
-    }
-
-    function scheduleAutoRefresh() {
-      if (refreshTimer) {
-        clearTimeout(refreshTimer);
-      }
-      nextRefreshAt = Date.now() + REFRESH_INTERVAL_MS;
-      refreshTimer = setTimeout(() => {
-        fetchTrains();
-      }, REFRESH_INTERVAL_MS);
-      if (!footerTickTimer) {
-        footerTickTimer = setInterval(updateFooter, 1000);
-      }
-      updateFooter();
-    }
-
-    function updatePullIndicator(visible, ready) {
-      if (!pullIndicator) return;
-      pullIndicator.classList.toggle('is-visible', visible);
-      pullIndicator.classList.toggle('is-ready', ready);
-      pullIndicator.textContent = ready ? 'release to refresh' : 'pull to refresh';
-    }
-
-    function resetPull() {
-      isPulling = false;
-      pullStartY = null;
-      pullOffset = 0;
-      container.classList.remove('is-pulling');
-      container.style.transform = '';
-      updatePullIndicator(false, false);
-    }
-
-    function setupPullToRefresh() {
-      if (!('ontouchstart' in window)) return;
-      const pullThreshold = 55;
-      const pullMax = 90;
-      window.addEventListener('touchstart', (event) => {
-        if (window.scrollY > 0) return;
-        if (event.touches.length !== 1) return;
-        pullStartY = event.touches[0].clientY;
-        isPulling = true;
-      }, { passive: true });
-
-      window.addEventListener('touchmove', (event) => {
-        if (!isPulling || pullStartY === null) return;
-        const currentY = event.touches[0].clientY;
-        const delta = currentY - pullStartY;
-        if (delta <= 0) return;
-        pullOffset = Math.min(delta, pullMax);
-        container.classList.add('is-pulling');
-        container.style.transform = `translateY(${pullOffset}px)`;
-        updatePullIndicator(true, pullOffset >= pullThreshold);
-        event.preventDefault();
-      }, { passive: false });
-
-      window.addEventListener('touchend', () => {
-        if (!isPulling) return;
-        const shouldRefresh = pullOffset >= pullThreshold;
-        resetPull();
-        if (shouldRefresh) {
-          fetchTrains(true);
-        }
-      });
-
-      window.addEventListener('touchcancel', resetPull);
-    }
-
-    function renderTrains(trains, destCrs, from) {
-      if (!trains?.length) return '<span class="loading">no trains</span>';
-      const list = trains;
-      const stopCounts = list.map(t => {
-        const allStops = t.subsequentCallingPoints?.[0]?.callingPoint || [];
-        if (!allStops.length) return null;
-        const destIdx = allStops.findIndex(s => s.crs === destCrs);
-        return destIdx >= 0 ? destIdx + 1 : allStops.length;
-      });
-      const arrivalTimes = list.map(t => {
-        const allStops = t.subsequentCallingPoints?.[0]?.callingPoint || [];
-        const destStop = allStops.find(s => s.crs === destCrs);
-        return destStop?.st || null;
-      });
-      const definedStops = stopCounts.filter(s => s !== null);
-      const uniqueStops = [...new Set(definedStops)].sort((a, b) => a - b);
-      const fastStopMax = uniqueStops.length >= 3 ? uniqueStops[1] : (uniqueStops[0] ?? null);
-      const showFast = uniqueStops.length >= 2;
-      let html = '';
-      let shown = 0;
-      list.forEach((t, i) => {
-        const delayed = t.etd !== 'On time' && t.etd !== t.std && t.etd !== 'Cancelled';
-        const cancelled = t.etd === 'Cancelled';
-        const cls = cancelled ? 'cancelled' : (delayed ? 'delayed' : '');
-        let platDisplay;
-        if (t.platform) {
-          platDisplay = `P${t.platform}`;
-        } else if (from === 'WAT' && WAT_PLATFORMS[t.std]) {
-          const pred = WAT_PLATFORMS[t.std];
-          const hue = Math.round(pred.c * 1.2);
-          platDisplay = `<span class="plat-guess" style="color:hsl(${hue},70%,60%)"><span class="num">~P${pred.p}</span><span class="pct">${pred.c}%</span></span>`;
-        } else {
-          platDisplay = '--';
-        }
-        const stops = stopCounts[i];
-        const isFastCandidate = stops !== null && fastStopMax !== null && stops <= fastStopMax;
-        const isFast = showFast && isFastCandidate;
-        const isDirect = stops === 1;
-        if (fastOnly && !(isDirect || isFastCandidate)) {
-          return;
-        }
-        if (shown >= trainLimit) {
-          return;
-        }
-        const stopsLabel = stops === null ? '' : `${stops} stops`;
-        const fastLabel = `<span class="fast">FAST</span> ${stopsLabel}`;
-        const dest = t.destination?.[0]?.locationName || '';
-        const cancelReason = t.cancelReason ? ` title="${t.cancelReason}"` : '';
-        const destDisplay = cancelled ? `${dest} <span class="cancelled-tag"${cancelReason}>Cancelled</span>` : dest;
-        const arr = arrivalTimes[i];
-        const statusText = cancelled ? 'On time' : t.etd;
-        const arrDisplay = arr ? `<span class="arr">arr ${arr}</span>` : '';
-        html += `<div class="train ${cls}">
-          <span class="time">${t.std}</span>
-          <span class="plat">${platDisplay}</span>
-          <span class="dest">${destDisplay}</span>
-          <span class="stops">${isDirect ? '<span class="fast">DIRECT</span>' : (isFast ? fastLabel : stopsLabel)}</span>
-          ${arrDisplay}
-          <span class="status">${statusText}</span>
-        </div>`;
-        shown += 1;
-      });
-      if (!shown) {
-        return `<span class="loading">${fastOnly ? 'no fast trains' : 'no trains'}</span>`;
-      }
-      return html;
-    }
-
-    function updateStationNames(from, to, data) {
-      if (data?.locationName) {
-        stationNames[from] = data.locationName;
-      }
-      if (data?.filterLocationName) {
-        stationNames[to] = data.filterLocationName;
-      }
-      if (stationNames[from] || stationNames[to]) {
-        updateRouteUI();
-      }
-    }
-
-    function errorMessageFor(from, to) {
-      if (stationNames[from] && stationNames[to]) {
-        return 'error: unable to load';
-      }
-      return 'error: are you sure that CRS is valid?';
-    }
-
-    function renderError(message) {
-      return `<span class="loading">${message}</span>`;
-    }
-
-    async function fetchRoute(from, to, elId) {
-      try {
-        const res = await fetch(`${API_BASE}/departures/${from}/to/${to}`);
-        const bodyText = await res.text();
-        let data = null;
-        try {
-          data = bodyText ? JSON.parse(bodyText) : null;
-        } catch (e) {
-          document.getElementById(elId).innerHTML = renderError(errorMessageFor(from, to));
-          return [];
-        }
-        if (!res.ok || !data?.trainServices) {
-          document.getElementById(elId).innerHTML = renderError(errorMessageFor(from, to));
-          return data?.nrccMessages || [];
-        }
-        document.getElementById(elId).innerHTML = renderTrains(data.trainServices, to, from);
-        updateStationNames(from, to, data);
-        return data.nrccMessages || [];
-      } catch (e) {
-        document.getElementById(elId).innerHTML = renderError(errorMessageFor(from, to));
-        return [];
-      }
-    }
-
-    function pulseRefreshButton() {
-      if (!refreshButton) return;
-      refreshButton.classList.remove('is-loading');
-      void refreshButton.offsetWidth;
-      refreshButton.classList.add('is-loading');
-      if (refreshPulseTimer) {
-        clearTimeout(refreshPulseTimer);
-      }
-      refreshPulseTimer = setTimeout(() => {
-        refreshButton.classList.remove('is-loading');
-      }, 450);
-    }
-
-    async function fetchTrains(manual = false) {
-      if (manual) {
-        pulseRefreshButton();
-      }
-      trainLimit = getLimitFromSearch();
-      fastOnly = getFastOnlyFromSearch();
-      const [msgs1, msgs2] = await Promise.all([
-        fetchRoute(route.from, route.to, 'outbound'),
-        fetchRoute(route.to, route.from, 'inbound')
-      ]);
-      const label1 = getStationLabel(route.from);
-      const label2 = getStationLabel(route.to);
-      const tagged1 = msgs1.map(m => ({ station: label1, msg: m.value }));
-      const tagged2 = msgs2.map(m => ({ station: label2, msg: m.value }));
-      const all = [...tagged1, ...tagged2];
-      const seen = new Set();
-      const unique = all.filter(a => seen.has(a.msg) ? false : seen.add(a.msg));
-      document.getElementById('alerts').innerHTML = unique.length
-        ? `<details class="alerts">
-            <summary>Service alerts (${unique.length})</summary>
-            <div class="alerts-body">${unique.map(a => `<strong>${a.station}:</strong> ${a.msg}`).join('<br><br>')}</div>
-          </details>`
-        : '';
-      lastUpdatedAt = Date.now();
-      scheduleAutoRefresh();
-    }
-
-    fetchTrains();
-  </script>
 </body>
 </html>

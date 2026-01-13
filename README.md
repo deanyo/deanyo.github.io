@@ -12,3 +12,4 @@ Personal homepage and project hub.
 - [league-arena-duo](https://dnyo.co.uk/league-arena-duo/) - Arena duo analyzer
 - [tbc-compare](https://dnyo.co.uk/tbc-compare/) - Warcraft Logs comparison
 - [tbc-countdown](https://dnyo.co.uk/tbc-countdown/) - TBC anniversary countdown
+- [danny the dj](https://github.com/deanyo/dannythedj) - Self-hosted Discord music bot

@@ -108,6 +108,11 @@
       color: var(--muted);
       font-size: 14px;
     }
+    /* Color variants for link cards */
+    .link-green .link-title { color: var(--accent-3); }
+    .link-green:hover { border-color: var(--accent-3); background: rgba(177, 242, 167, 0.05); }
+    .link-pink .link-title { color: var(--accent-2); }
+    .link-pink:hover { border-color: var(--accent-2); background: rgba(225, 146, 239, 0.05); }
     .footer {
       margin-top: 24px;
       text-align: center;
@@ -128,14 +133,14 @@
     <h1 class="hero-title">~/dnyo</h1>
     <p class="hero-sub">personal projects & tools</p>
     <div class="links">
-      <a href="/commute/" class="link">
+      <a href="/commute/" class="link link-green">
         <div class="link-text">
           <div class="link-title">commute</div>
           <div class="link-desc">live train departures for my commute</div>
         </div>
         <span class="link-arrow">→</span>
       </a>
-      <a href="/league-arena-duo/" class="link">
+      <a href="/league-arena-duo/" class="link link-pink">
         <div class="link-text">
           <div class="link-title">league arena duo</div>
           <div class="link-desc">arena duo comp analyzer & roast generator</div>
@@ -149,7 +154,7 @@
         </div>
         <span class="link-arrow">→</span>
       </a>
-      <a href="/tbc-countdown/" class="link">
+      <a href="/tbc-countdown/" class="link link-green">
         <div class="link-text">
           <div class="link-title">tbc countdown</div>
           <div class="link-desc">burning crusade anniversary 2026 countdown</div>

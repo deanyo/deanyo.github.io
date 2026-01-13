@@ -1,7 +1,14 @@
-[![GitHub Pages](https://github.com/deanyo/deanyo.github.io/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/deanyo/deanyo.github.io/actions/workflows/pages/pages-build-deployment)
+# dnyo.co.uk
 
-Live train departures for my Walton-on-Thames ↔ Waterloo commute, with custom routes via `/FROM/TO` and optional `?n=10` (or `?limit=10`) to show more results.
+[![pages-build-deployment](https://github.com/deanyo/deanyo.github.io/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/deanyo/deanyo.github.io/actions/workflows/pages/pages-build-deployment)
 
-**https://dnyo.co.uk**
+Personal homepage and project hub.
 
-Uses [Huxley2](https://github.com/jpsingleton/Huxley2) + National Rail Darwin API. Click the header to edit the route inline.
+**Live:** [dnyo.co.uk](https://dnyo.co.uk/)
+
+## Projects
+
+- [commute](https://dnyo.co.uk/commute/) - Live train departures
+- [league-arena-duo](https://dnyo.co.uk/league-arena-duo/) - Arena duo analyzer
+- [tbc-compare](https://dnyo.co.uk/tbc-compare/) - Warcraft Logs comparison
+- [tbc-countdown](https://dnyo.co.uk/tbc-countdown/) - TBC anniversary countdown

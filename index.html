@@ -88,8 +88,7 @@
     }
 
     .hero h1,
-    .card h2,
-    .notes-card h2 {
+    .card h2 {
       font-family: "Space Grotesk", sans-serif;
       text-transform: lowercase;
     }
@@ -110,8 +109,7 @@
       line-height: 1.8;
     }
 
-    .main-grid,
-    .notes-grid {
+    .main-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 18px;
@@ -136,15 +134,13 @@
       min-height: 280px;
     }
 
-    .feature-card h2,
-    .notes-card h2 {
+    .feature-card h2 {
       color: var(--accent);
       font-size: 28px;
       line-height: 1;
     }
 
     .feature-card p,
-    .notes-card p,
     .feature-list {
       color: var(--muted);
       font-size: 13px;
@@ -228,7 +224,7 @@
     }
 
     .ghost-btn:hover,
-    .notes-card a:hover {
+    .footer a:hover {
       color: var(--accent);
     }
 
@@ -242,8 +238,7 @@
     }
 
     @media (max-width: 900px) {
-      .main-grid,
-      .notes-grid {
+      .main-grid {
         grid-template-columns: 1fr;
       }
 
@@ -275,12 +270,8 @@
   <div class="shell">
     <header class="hero">
       <p class="eyebrow">deanyo</p>
-      <h1>small sites that still matter</h1>
-      <p class="intro">
-        The homepage is stripped back to the bits worth keeping around:
-        fpvtools for rates and blackbox-related work, commute for live train departures,
-        and Del Boy's Drinks for the Only Fools and Horses nonsense.
-      </p>
+      <h1>fpvtools, commute, delboy</h1>
+      <p class="intro">Three links. Nothing else.</p>
     </header>
 
     <main class="main-grid">
@@ -342,26 +333,9 @@
       </section>
     </main>
 
-    <section class="card notes-card">
-      <div class="notes-grid">
-        <div>
-          <h2>why this page exists</h2>
-          <p>
-            Just a front door now. No extra project list, no root-level app, no filler.
-          </p>
-        </div>
-        <div>
-          <h2>source</h2>
-          <p>
-            <a href="https://github.com/deanyo/deanyo.github.io">github.com/deanyo/deanyo.github.io</a>
-          </p>
-        </div>
-      </div>
-    </section>
-
     <footer class="footer">
       <span>dnyo.co.uk</span>
-      <a href="https://github.com/deanyo/deanyo.github.io">view homepage source</a>
+      <a href="https://github.com/deanyo/deanyo.github.io">src</a>
     </footer>
   </div>
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "0f776adfddff4d4aa70d19993c72329b"}'></script><!-- End Cloudflare Web Analytics -->

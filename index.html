@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#1a1621">
-  <title>dnyo.co.uk</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Links to fpvtools, commute, and Del Boy's Drinks.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://dnyo.co.uk/">
+  <meta property="og:title" content="deanyo | fpvtools, commute, delboy">
+  <meta property="og:description" content="Small live sites from deanyo: fpvtools, commute, and Del Boy's Drinks.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dnyo.co.uk/">
+  <meta property="og:site_name" content="deanyo">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="deanyo | fpvtools, commute, delboy">
+  <meta name="twitter:description" content="Small live sites from deanyo: fpvtools, commute, and Del Boy's Drinks.">
+  <meta name="theme-color" content="#121019">
+  <title>deanyo | fpvtools, commute, delboy</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&amp;family=Space+Grotesk:wght@400;600;700&amp;display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256' viewBox='0 0 256 256'><rect width='256' height='256' fill='%231a1621'/><text x='128' y='155' text-anchor='middle' font-family='JetBrains%20Mono,monospace' font-size='96' font-weight='600' fill='%23b3f4f3'>~</text></svg>">
   <style>
     :root {
@@ -15,27 +26,31 @@
       --bg-1: #1a1621;
       --bg-2: #231f32;
       --ink: #eee9fc;
-      --muted: #9a90b3;
+      --muted: #a096b8;
       --line: #3f3951;
       --accent: #b3f4f3;
       --accent-2: #e192ef;
       --accent-3: #b1f2a7;
       --shadow: rgba(0, 0, 0, 0.35);
     }
-    * { box-sizing: border-box; }
-    body {
+
+    * {
+      box-sizing: border-box;
       margin: 0;
-      font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
-      color: var(--ink);
-      background: radial-gradient(1000px 600px at 8% -20%, #2b2436, transparent),
-        radial-gradient(700px 500px at 90% -10%, #1c2a35, transparent),
-        linear-gradient(160deg, var(--bg-0), var(--bg-1) 40%, var(--bg-0));
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
+      padding: 0;
     }
+
+    body {
+      min-height: 100vh;
+      padding: 24px;
+      color: var(--ink);
+      font-family: "JetBrains Mono", "SF Mono", Consolas, monospace;
+      background:
+        radial-gradient(1200px 700px at 0% -10%, rgba(134, 199, 255, 0.12), transparent 60%),
+        radial-gradient(900px 600px at 100% 0%, rgba(225, 146, 239, 0.12), transparent 58%),
+        linear-gradient(160deg, var(--bg-0), var(--bg-1) 40%, var(--bg-0));
+    }
+
     body::before {
       content: "";
       position: fixed;
@@ -45,144 +60,310 @@
         linear-gradient(90deg, transparent 95%, rgba(255, 255, 255, 0.02));
       background-size: 40px 40px;
       pointer-events: none;
-      opacity: 0.4;
-      mix-blend-mode: screen;
+      opacity: 0.35;
     }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
     .shell {
-      max-width: 400px;
-      width: 100%;
       position: relative;
       z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
     }
-    .hero-title {
-      font-family: "Space Grotesk", "JetBrains Mono", sans-serif;
-      font-size: 32px;
-      letter-spacing: -0.02em;
-      margin: 0 0 8px 0;
-      color: var(--accent);
+
+    .hero {
+      padding: 32px 0 28px;
     }
-    .hero-sub {
-      margin: 0 0 24px 0;
-      color: var(--muted);
-      font-size: 13px;
+
+    .eyebrow {
+      color: var(--accent-3);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: lowercase;
+      margin-bottom: 14px;
+    }
+
+    .hero h1,
+    .card h2,
+    .notes-card h2 {
+      font-family: "Space Grotesk", sans-serif;
       text-transform: lowercase;
     }
-    .links {
+
+    .hero h1 {
+      max-width: 10ch;
+      color: var(--accent);
+      font-size: clamp(42px, 7vw, 88px);
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+      margin-bottom: 16px;
+    }
+
+    .intro {
+      max-width: 58ch;
+      color: #d3ccdf;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .main-grid,
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .main-grid {
+      margin-bottom: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--bg-2);
+      box-shadow: 0 12px 30px var(--shadow);
+      padding: 22px;
+    }
+
+    .feature-card {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
+      min-height: 280px;
     }
-    .link {
+
+    .feature-card h2,
+    .notes-card h2 {
+      color: var(--accent);
+      font-size: 28px;
+      line-height: 1;
+    }
+
+    .feature-card p,
+    .notes-card p,
+    .feature-list {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .highlight-card {
+      grid-column: 1 / -1;
+      background:
+        radial-gradient(420px 220px at 100% 0%, rgba(134, 199, 255, 0.08), transparent 70%),
+        var(--bg-2);
+    }
+
+    .card-head {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 14px 16px;
-      background: var(--bg-2);
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      text-decoration: none;
-      color: var(--ink);
-      transition: border-color 0.15s, background 0.15s;
+      font-size: 11px;
+      text-transform: lowercase;
+      white-space: nowrap;
     }
-    .link:hover {
-      border-color: var(--accent);
-      background: rgba(179, 244, 243, 0.05);
+
+    .status.live {
+      color: var(--accent-3);
+      background: rgba(177, 242, 167, 0.08);
     }
-    .link-icon {
-      display: none;
+
+    .status.utility {
+      color: var(--accent-2);
+      background: rgba(225, 146, 239, 0.08);
     }
-    .link-text {
-      flex: 1;
+
+    .feature-list {
+      list-style: none;
+      display: grid;
+      gap: 6px;
     }
-    .link-title {
-      font-size: 14px;
-      font-weight: 600;
+
+    .feature-list li::before {
+      content: "· ";
+      color: var(--accent-2);
+    }
+
+    .action-row {
+      margin-top: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .primary-btn,
+    .ghost-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 14px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-size: 12px;
+      text-transform: lowercase;
+    }
+
+    .primary-btn {
+      background: var(--accent);
+      color: var(--bg-1);
+    }
+
+    .ghost-btn {
+      background: transparent;
+      color: var(--muted);
+    }
+
+    .ghost-btn:hover,
+    .notes-card a:hover {
       color: var(--accent);
     }
-    .link-title .wip {
-      font-size: 9px;
-      font-weight: 600;
-      color: var(--warn);
-      border: 1px solid var(--warn);
-      padding: 1px 4px;
-      border-radius: 3px;
-      margin-left: 6px;
-      vertical-align: middle;
-    }
-    .link-desc {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
-    .link-arrow {
-      color: var(--muted);
-      font-size: 14px;
-    }
-    /* Color variants for link cards */
-    .link-green .link-title { color: var(--accent-3); }
-    .link-green:hover { border-color: var(--accent-3); background: rgba(177, 242, 167, 0.05); }
-    .link-pink .link-title { color: var(--accent-2); }
-    .link-pink:hover { border-color: var(--accent-2); background: rgba(225, 146, 239, 0.05); }
+
     .footer {
-      margin-top: 24px;
-      text-align: center;
-      font-size: 11px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 18px;
       color: var(--muted);
+      font-size: 12px;
     }
-    .footer a {
-      color: var(--muted);
-      text-decoration: none;
+
+    @media (max-width: 900px) {
+      .main-grid,
+      .notes-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .highlight-card {
+        grid-column: auto;
+      }
     }
-    .footer a:hover {
-      color: var(--accent);
+
+    @media (max-width: 640px) {
+      body {
+        padding: 12px;
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      .action-row > a {
+        width: 100%;
+      }
+
+      .footer {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
   <div class="shell">
-    <h1 class="hero-title">~/dnyo</h1>
-    <p class="hero-sub">personal projects & tools</p>
-    <div class="links">
-      <a href="/commute/" class="link link-green">
-        <div class="link-text">
-          <div class="link-title">commute</div>
-          <div class="link-desc">live train departures for my commute</div>
+    <header class="hero">
+      <p class="eyebrow">deanyo</p>
+      <h1>small sites that still matter</h1>
+      <p class="intro">
+        The homepage is stripped back to the bits worth keeping around:
+        fpvtools for rates and blackbox-related work, commute for live train departures,
+        and Del Boy's Drinks for the Only Fools and Horses nonsense.
+      </p>
+    </header>
+
+    <main class="main-grid">
+      <section class="card feature-card highlight-card">
+        <div class="card-head">
+          <span class="status live">live</span>
+          <h2>fpvtools</h2>
         </div>
-        <span class="link-arrow">→</span>
-      </a>
-      <a href="/league-arena-duo/" class="link link-pink">
-        <div class="link-text">
-          <div class="link-title">league arena duo <span class="wip">WIP</span></div>
-          <div class="link-desc">arena duo comp analyzer & roast generator</div>
+        <p>
+          FPV tools for Betaflight. Rates is live now, and this is where the rates and blackbox work belongs.
+        </p>
+        <ul class="feature-list">
+          <li>actual and betaflight rates</li>
+          <li>graphs, cli copy, and share links</li>
+          <li>home for rates and blackbox-related tools</li>
+        </ul>
+        <div class="action-row">
+          <a class="primary-btn" href="https://fpvtools.co.uk/">open fpvtools</a>
+          <a class="ghost-btn" href="https://github.com/deanyo/fpvtools">view source</a>
         </div>
-        <span class="link-arrow">→</span>
-      </a>
-      <a href="/tbc-compare/" class="link">
-        <div class="link-text">
-          <div class="link-title">tbc compare <span class="wip">WIP</span></div>
-          <div class="link-desc">warcraft logs comparison tool</div>
+      </section>
+
+      <section class="card feature-card">
+        <div class="card-head">
+          <span class="status utility">utility</span>
+          <h2>commute</h2>
         </div>
-        <span class="link-arrow">→</span>
-      </a>
-      <a href="/tbc-countdown/" class="link link-green">
-        <div class="link-text">
-          <div class="link-title">tbc countdown</div>
-          <div class="link-desc">burning crusade anniversary 2026 countdown</div>
+        <p>
+          Live National Rail departures for the Walton-on-Thames to Waterloo commute, with editable station routes.
+        </p>
+        <ul class="feature-list">
+          <li>real-time departures</li>
+          <li>custom routes by url</li>
+          <li>platform predictions for waterloo</li>
+        </ul>
+        <div class="action-row">
+          <a class="primary-btn" href="https://dnyo.co.uk/commute/">open commute</a>
+          <a class="ghost-btn" href="https://github.com/deanyo/commute">view source</a>
         </div>
-        <span class="link-arrow">→</span>
-      </a>
-      <a href="https://github.com/deanyo/dannythedj" class="link link-pink" target="_blank">
-        <div class="link-text">
-          <div class="link-title">danny the dj</div>
-          <div class="link-desc">self-hosted discord music bot</div>
+      </section>
+
+      <section class="card feature-card">
+        <div class="card-head">
+          <span class="status utility">utility</span>
+          <h2>delboy</h2>
         </div>
-        <span class="link-arrow">→</span>
-      </a>
-    </div>
-    <div class="footer">
-      <a href="https://github.com/deanyo" target="_blank">github</a> · <a href="https://www.linkedin.com/in/dean-ryan-yo/" target="_blank">linkedin</a>
-    </div>
+        <p>
+          The verified list of Del Boy drinks from Only Fools and Horses, with the data, search, and the ridiculous orders intact.
+        </p>
+        <ul class="feature-list">
+          <li>confirmed drink list</li>
+          <li>search, wheel, and generator</li>
+          <li>episode references and api</li>
+        </ul>
+        <div class="action-row">
+          <a class="primary-btn" href="https://dnyo.co.uk/delboy/">open delboy</a>
+          <a class="ghost-btn" href="https://github.com/deanyo/delboy">view source</a>
+        </div>
+      </section>
+    </main>
+
+    <section class="card notes-card">
+      <div class="notes-grid">
+        <div>
+          <h2>why this page exists</h2>
+          <p>
+            Just a front door now. No extra project list, no root-level app, no filler.
+          </p>
+        </div>
+        <div>
+          <h2>source</h2>
+          <p>
+            <a href="https://github.com/deanyo/deanyo.github.io">github.com/deanyo/deanyo.github.io</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>dnyo.co.uk</span>
+      <a href="https://github.com/deanyo/deanyo.github.io">view homepage source</a>
+    </footer>
   </div>
-<!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "0f776adfddff4d4aa70d19993c72329b"}'></script><!-- End Cloudflare Web Analytics -->
+  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "0f776adfddff4d4aa70d19993c72329b"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
